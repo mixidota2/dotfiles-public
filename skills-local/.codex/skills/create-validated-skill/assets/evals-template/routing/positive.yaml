@@ -1,0 +1,6 @@
+kind: positive
+expected_activation: true
+cases:
+  - id: TODO-positive-case
+    critical: true
+    prompt: TODO Add a request that should automatically activate the skill.

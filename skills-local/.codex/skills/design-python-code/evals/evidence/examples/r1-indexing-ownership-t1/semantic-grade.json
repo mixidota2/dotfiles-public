@@ -1,0 +1,108 @@
+{
+  "run_id": "r1-indexing-ownership-t1",
+  "case": "indexing-ownership",
+  "configuration": "with_skill",
+  "candidate_version": "v1",
+  "candidate_freeze_hash": "65572d28bd6854b8365b05f60c1b13f8e6e548263dc3108ae9eba41991d70540",
+  "critical_success": false,
+  "passed": 6,
+  "total": 7,
+  "deliverable_sha256": "657fe842fd78f8be0ac600c1882387197717de6d8563dc810d4fec7b8b39eae8",
+  "deliverable": "examples/r1-indexing-ownership-t1/deliverable.md",
+  "full_artifact_status": "included_verbatim",
+  "requirements": [
+    {
+      "id": "single-id-authority",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "15-33,76-85",
+      "reason": "Detects independent ID owners and separates semantic rule authority from storage writer/source of truth."
+    },
+    {
+      "id": "challenge-pass-through",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "7,173-192",
+      "reason": "Explicit Merge/Delete tests reject pass-through service/manager/repository layers."
+    },
+    {
+      "id": "no-speculative-abstraction",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "35-39,184-185",
+      "reason": "No blanket Protocols/factories or new ID module; concrete future triggers only."
+    },
+    {
+      "id": "preserve-public-di",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "59,89-94",
+      "reason": "Exact public signature and caller injection preserved; compatibility facade retained."
+    },
+    {
+      "id": "revise-reevaluate",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "161-213",
+      "reason": "Rejects old candidate, revises ownership and layers, then applies same ten dimensions and three real change scenarios."
+    },
+    {
+      "id": "evidence-ten-dimensions",
+      "critical": true,
+      "verdict": "fail",
+      "lines": "196-213, especially 210",
+      "reason": "All ten dimensions are present, but Evidence is Pass while material facts remain unverified. Original hidden requirement forbids unknowns being treated as passed. Assessor initially interpreted this as disclosure quality; corrected consistently after the stricter manifestation in the evidence-limited scenario. Overall design is correctly provisional, so scope of defect is review-contract inconsistency."
+    },
+    {
+      "id": "no-code-edit",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "9,243,271; input hash check",
+      "reason": "Read-only review and plan; all input hashes unchanged."
+    }
+  ],
+  "supporting_text": [
+    {
+      "id": "single-id-authority",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "challenge-pass-through",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "no-speculative-abstraction",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "preserve-public-di",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "revise-reevaluate",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "evidence-ten-dimensions",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "no-code-edit",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    }
+  ]
+}

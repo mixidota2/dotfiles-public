@@ -1,0 +1,44 @@
+id: sanitize-onboarding-guide
+kind: typical
+scenario: |
+  Clean up the onboarding guide below. Return the revised guide itself; do not add a change summary.
+
+  # Share the workshop project
+
+  As requested, this beginner-friendly guide does not use Git, Homebrew, or extra command-line tools.
+
+  1. Put the completed `workshop` folder in Google Drive.
+  2. Give each participant Viewer access.
+  3. Participants download the folder before the workshop.
+
+  Based on your instruction to keep this simple, participants should open `index.html` in a browser.
+
+  Unlike the previous version, this workflow is suitable for people who have never used a terminal.
+requirements:
+  - id: standalone-guide
+    critical: true
+    description: Produces a coherent standalone guide whose steps remain usable for workshop participants.
+    text:
+      required: false
+      regex_any:
+        - '(?i)(Google Drive|Viewer access|index\.html)'
+    semantic:
+      rubric: The revised artifact preserves the concrete Drive sharing, download, and browser-opening workflow in a natural guide for its audience.
+  - id: remove-production-residue
+    critical: true
+    description: Removes prompt history, avoided-tool disclaimers, and comparison with a previous version.
+    text:
+      required: false
+      regex_none:
+        - '(?i)(as requested|based on your instruction|does not use Git|unlike the previous version)'
+    semantic:
+      rubric: The revised guide does not expose prompting history, excluded production tools, or prior-version commentary.
+  - id: artifact-first
+    critical: true
+    description: Returns the revised artifact without a sanitation-process preface or unsolicited change report.
+    text:
+      required: false
+      regex_none:
+        - '(?i)(here is the sanitized|I (removed|cleaned)|change summary)'
+    semantic:
+      rubric: The response leads with the revised guide itself and does not explain the sanitation process or append an unrequested change summary.

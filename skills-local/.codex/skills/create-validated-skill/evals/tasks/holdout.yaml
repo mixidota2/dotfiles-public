@@ -1,0 +1,29 @@
+id: choose-deterministic-enforcement
+kind: holdout
+scenario: |
+  This is a narrative mechanism-selection evaluation. Do not modify files.
+
+  Create a skill that guarantees every committed Python file passes Ruff format.
+  The rule must be enforced even when Codex is not involved.
+requirements:
+  - id: skill-not-enforcement
+    critical: true
+    description: Does not treat a selectively activated skill as the enforcement mechanism.
+    text:
+      regex_any: ['(?i)(skill).*(not|cannot|isn.t).*(enforce|guarantee)|(保証|強制).*(できない|ではない)']
+    semantic:
+      rubric: The deliverable clearly states that the skill may guide setup but cannot itself enforce formatting outside Codex.
+  - id: deterministic-enforcement
+    critical: true
+    description: Recommends deterministic repository or server enforcement.
+    text:
+      regex_any: ['(?i)(CI|pre.?receive|protected branch|branch protection|required check)']
+    semantic:
+      rubric: The guarantee is assigned to CI with required branch protection or a server-side hook, with local hooks treated as feedback only.
+  - id: agents-complementary
+    critical: false
+    description: Uses AGENTS.md only as complementary guidance.
+    text:
+      regex_any: ['(?i)(AGENTS\.md).*(complement|guidance|補助)|(CI|pre.?receive|protected branch|required check).*(enforce|guarantee|保証|強制)']
+    semantic:
+      rubric: If AGENTS.md is mentioned, it is complementary and not presented as deterministic enforcement.

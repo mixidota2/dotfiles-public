@@ -1,0 +1,12 @@
+id: edge
+kind: edge
+scenario: |
+  TODO Add a difficult but valid request and its realistic constraints.
+requirements:
+  - id: TODO-requirement-id
+    critical: true
+    description: TODO Add an observable constraint-preserving outcome.
+    text:
+      regex_any: ['TODO broad surface regex']
+    semantic:
+      rubric: TODO Add a semantic judgment rule.

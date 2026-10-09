@@ -1,0 +1,12 @@
+id: isolated-syntax-fix
+kind: negative
+scenario: |
+  Pythonの一つのfunctionで閉じ括弧が抜けてSyntaxErrorになっています。括弧を補って、そのtestだけ実行してください。directory構成や責務分割は変更しないでください。
+requirements:
+  - id: avoid-design-work
+    critical: true
+    description: 構造設計や抽象化を持ち込まず、指定された局所修正とtestだけを行う。
+    text:
+      regex_any: ['(括弧|SyntaxError|局所|test|テスト)']
+    semantic:
+      rubric: The executor treats this as an out-of-scope local syntax fix and does not introduce package redesign, new abstractions, or unrelated refactoring.

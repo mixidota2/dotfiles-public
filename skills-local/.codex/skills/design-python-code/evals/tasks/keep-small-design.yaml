@@ -1,0 +1,43 @@
+id: retain-cohesive-small-design
+kind: edge
+scenario: |
+  小さなPythonの文字列集計libraryに構造変更が必要か設計レビューしてください。read-onlyで判断だけ欲しいです。現状は次です。
+
+  `tags/__init__.py`は`tags/counting.py`の`count_tags(text)`だけをre-exportします。counting.py内にはprivateな`_normalize`、`_split`と公開count_tagsの3関数があります。すべて同じタグ正規化ruleのために変わります。状態は各呼出し内のlocal変数だけで、global変更や外部I/Oはありません。外部依存は標準libraryだけです。入力が文字列でない場合はTypeError、戻り値はdict[str, int]です。
+
+  `tags/cli.py`はstdin読込→count_tags→JSONをstdoutへ出力します。例外はCLIでmessageとexit codeへ変換します。libraryの利用者も`from tags import count_tags`を使います。設定、DI、DB、別provider、別algorithm、plugin予定はありません。testは公開APIと正規化ruleを検証しています。
+
+  今後の変更は大文字小文字の正規化ruleと、同じcount_tagsを使う別CLI表示形式だけです。「domain/、application/、ports/、adapters/へ分けたほうが将来安心」という提案を受けました。今の制約に合う最小の構成、責務、依存、将来見直す条件を示してください。
+requirements:
+  - id: preserve-small-structure
+    critical: true
+    description: 現状の凝集したflat構成を維持し、将来不安だけでlayer・Protocolを追加しない。
+    text:
+      required: false
+      regex_any: ['(?i)(現状維持|flat|維持|分割不要)']
+    semantic:
+      rubric: The design retains the cohesive small layout and public facade, rejects speculative layers/Protocols, and states concrete future evidence that could justify reconsideration without inventing current needs.
+  - id: proportionate-evidence-review
+    critical: true
+    description: 10観点を具体的な根拠で判定し、適用されないものを説明する。
+    text:
+      required: false
+      regex_any: ['(?i)(Pass|N/A|根拠|判定)']
+    semantic:
+      rubric: All ten design dimensions receive separate supported Pass/Revise/N/A judgments, grounded in the given pure functions, local state and public contract. Absence of external providers/transactions is handled as inapplicable where appropriate rather than invented. No defect or revision is fabricated solely to demonstrate a loop.
+  - id: counterfactual-and-trace
+    critical: true
+    description: 統合・削除案と両入口の依存を具体化し、新規境界がないなら明示する。
+    text:
+      required: false
+      regex_any: ['(?i)(Merge|Delete|統合|削除|__init__|cli)']
+    semantic:
+      rubric: The result assesses the proposed additional boundaries and the useful existing facade/CLI separation through merge/delete reasoning, traces both CLI and public library entrypoints to results and failure handling, and makes clear no new boundary is introduced if the layout remains unchanged.
+  - id: retain-design-output-and-authority
+    critical: true
+    description: 構成・責務・公開面と異なる軸の変更を示し、編集しない。
+    text:
+      required: false
+      regex_any: ['(?i)(count_tags|正規化|表示|変更)']
+    semantic:
+      rubric: The deliverable includes layout, responsibilities/exclusions, public API, dependency direction and tradeoffs, shows both rule-change and presentation-change impact/non-impact, and remains read-only.

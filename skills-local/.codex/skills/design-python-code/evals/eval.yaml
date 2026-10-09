@@ -1,0 +1,31 @@
+name: design-python-code
+version: 2
+tier: deep
+trials_per_task: 2
+tasks:
+  - tasks/typical.yaml
+  - tasks/edge.yaml
+  - tasks/negative.yaml
+  - tasks/ml-vertical-slice.yaml
+  - tasks/falsify-candidate.yaml
+  - tasks/keep-small-design.yaml
+  - tasks/missing-evidence.yaml
+holdout:
+  - tasks/holdout.yaml
+routing:
+  profiles:
+    - isolated
+    - normal
+  trials_per_case: 2
+  cases:
+    - routing/positive.yaml
+    - routing/negative.yaml
+    - routing/near-miss.yaml
+  thresholds:
+    critical_positive_activation_rate: 1.0
+    positive_activation_rate: 0.9
+    negative_false_activation_rate: 0.05
+    near_miss_false_activation_rate: 0.1
+completion:
+  critical_requirements: all
+  deterministic_unclear_points: 0

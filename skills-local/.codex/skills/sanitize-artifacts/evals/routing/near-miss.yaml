@@ -1,0 +1,6 @@
+kind: near-miss
+expected_activation: false
+cases:
+  - id: review-python-diff
+    critical: false
+    prompt: Review this Python diff for SQL injection risks and missing tests. Report findings only; do not rewrite the code.

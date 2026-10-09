@@ -1,0 +1,40 @@
+id: split-flat-package
+kind: typical
+scenario: |
+  Pythonの`src/shop/`直下に`orders.py`、`order_service.py`、`payments.py`、`stripe.py`、`models.py`、`utils.py`など20個ほどのfileがあります。注文キャンセル条件の変更と決済provider追加が毎回複数fileへ波及します。コードをまだ変更せず、認知負荷と変更範囲を小さくするpackage/module構成を設計してください。
+requirements:
+  - id: evidence-before-design
+    critical: true
+    description: 現在のtree、caller、依存、公開API、test等を確認してから設計し、未提供情報を事実として作らない。
+    text:
+      regex_any: ['(?i)(tree|caller|import|公開API|test|未確認|仮定)']
+    semantic:
+      rubric: The result explicitly bases the proposal on inspected or requested repository evidence and distinguishes missing facts from assumptions.
+  - id: change-scenarios
+    critical: true
+    description: キャンセル条件変更とprovider追加を代表変更シナリオとして、変更箇所と非波及箇所を示す。
+    text:
+      regex_any: ['(キャンセル|provider|変更シナリオ|波及)']
+    semantic:
+      rubric: The design uses both rule-change and provider-addition scenarios to evaluate locality, including where changes should and should not occur.
+  - id: concrete-boundaries
+    critical: true
+    description: 提案tree、module責務・非責務、公開面、依存方向を具体化する。
+    text:
+      regex_any: ['(提案tree|Proposed tree|責務|非責務|依存方向|公開)']
+    semantic:
+      rubric: The deliverable provides an implementable package/module map with responsibilities, exclusions, public surface, and dependency direction.
+  - id: no-edit
+    critical: true
+    description: 設計依頼なのでコードを変更しない。
+    text:
+      regex_any: ['(変更していません|変更は行っていません|変更していない|コードは変更|提案のみ|実装前)']
+    semantic:
+      rubric: The executor performs analysis and design only and does not edit project code.
+  - id: minimal-abstraction
+    critical: false
+    description: 現状維持を含む最小案と抽象化の根拠・trade-offを示す。
+    text:
+      regex_any: ['(最小案|現状維持|過剰抽象|trade-off|トレードオフ)']
+    semantic:
+      rubric: The result considers the smallest viable structure and does not add abstractions without a present variation or boundary need.

@@ -1,0 +1,49 @@
+id: preserve-audience-safety-caveat
+kind: edge
+scenario: |
+  Polish this production runbook so it reads as a standalone operator document. Keep safety information that operators genuinely need, but remove drafting residue. Return the runbook followed by a short change summary.
+
+  # Delete a stale tenant
+
+  Because you told me to be extra careful, production deletion requires approval from the incident commander and a second operator.
+
+  As requested, we do not run the command until the tenant ID is pasted into the incident ticket.
+
+  ## Steps added after feedback
+
+  1. Record the tenant ID in the incident ticket.
+  2. Obtain approval from the incident commander and a second operator.
+  3. Run the deletion from the production operations console.
+  4. Confirm the tenant no longer appears in the console.
+
+  Unlike the first draft, this version includes verification.
+requirements:
+  - id: preserve-safety-contract
+    critical: true
+    description: Preserves the production approval, second-operator, ticket-recording, deletion, and verification requirements.
+    text:
+      required: false
+      regex_any:
+        - '(?i)(incident commander.*second operator|second operator.*incident commander)'
+        - '(?i)(tenant ID.*incident ticket)'
+        - '(?i)(confirm|verify).*(no longer|removed|absent)'
+    semantic:
+      rubric: The standalone runbook retains every operator-facing safety control and verification step, even though their drafting rationale is removed.
+  - id: remove-drafting-residue
+    critical: true
+    description: Removes feedback history, request acknowledgements, and previous-draft comparisons without weakening the controls.
+    text:
+      required: false
+      regex_none:
+        - '(?i)(because you told me|as requested|added after feedback|unlike the first draft)'
+    semantic:
+      rubric: The artifact contains no unnecessary drafting history or prompt-facing explanation, while the same operational rules remain explicit.
+  - id: requested-output-order
+    critical: true
+    description: Places the revised runbook before the requested short change summary.
+    text:
+      required: false
+      regex_any:
+        - '(?i)(change summary|changes)'
+    semantic:
+      rubric: The response presents the runbook first and a concise change summary afterward.

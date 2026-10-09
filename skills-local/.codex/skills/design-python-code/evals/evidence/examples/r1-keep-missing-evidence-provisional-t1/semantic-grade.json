@@ -1,0 +1,77 @@
+{
+  "run_id": "r1-keep-missing-evidence-provisional-t1",
+  "case": "keep-missing-evidence-provisional",
+  "configuration": "with_skill",
+  "candidate_version": "v1",
+  "candidate_freeze_hash": "65572d28bd6854b8365b05f60c1b13f8e6e548263dc3108ae9eba41991d70540",
+  "critical_success": false,
+  "passed": 3,
+  "total": 4,
+  "deliverable_sha256": "df84a6607a04009e2dfc6309178328b48697681c512d07a783c2541318261baa",
+  "deliverable": "examples/r1-keep-missing-evidence-provisional-t1/deliverable.md",
+  "full_artifact_status": "included_verbatim",
+  "requirements": [
+    {
+      "id": "no-false-pass",
+      "critical": true,
+      "verdict": "fail",
+      "lines": "149-162, especially 159",
+      "reason": "Material facts are missing and most dimensions correctly remain Revise, but Evidence is explicitly Pass (provided scope). Fixed semantic rubric requires affected Evidence to remain unresolved/Revise; disclosure quality was substituted for evidence sufficiency. Overall proposal remains provisional, so failure scope is this review-contract mismatch."
+    },
+    {
+      "id": "useful-bounded-analysis",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "5-9,71-102,164-175",
+      "reason": "Useful conditional minimal proposal, preserved reserve API, prioritized missing evidence; no invented persistence/concurrency contract or test claims."
+    },
+    {
+      "id": "trace-and-counterfactual-limits",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "116-143",
+      "reason": "Traces known facade only as far as supplied facts and marks missing transitive edges; Merge/Delete covers both split boundaries and smaller alternative."
+    },
+    {
+      "id": "same-rubric-and-read-only",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "145-162,175; input hash check",
+      "reason": "Same ten separate dimensions applied to original and revised candidate; overall still provisional, no code edits or executed checks claimed. Evidence-row mismatch counted under no-false-pass."
+    }
+  ],
+  "supporting_text": [
+    {
+      "id": "no-false-pass",
+      "required": false,
+      "verdict": "pass",
+      "patterns": [
+        "(?i)(Revise|未確認|暫定|証拠)"
+      ]
+    },
+    {
+      "id": "useful-bounded-analysis",
+      "required": false,
+      "verdict": "pass",
+      "patterns": [
+        "(?i)(reserve|公開|確認|仮定)"
+      ]
+    },
+    {
+      "id": "trace-and-counterfactual-limits",
+      "required": false,
+      "verdict": "pass",
+      "patterns": [
+        "(?i)(Merge|Delete|統合|削除|不明|trace)"
+      ]
+    },
+    {
+      "id": "same-rubric-and-read-only",
+      "required": false,
+      "verdict": "pass",
+      "patterns": [
+        "(?i)(Coverage|Ownership|Cohesion|Dependency|read.only|変更)"
+      ]
+    }
+  ]
+}

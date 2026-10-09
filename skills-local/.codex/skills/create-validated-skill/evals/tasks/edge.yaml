@@ -1,0 +1,60 @@
+id: revise-trigger-mismatch
+kind: edge
+scenario: |
+  This is a narrative design evaluation with a hypothetical existing skill. Do not
+  modify files. Give the exact pre-edit evidence, minimal revision, and validation
+  workflow you would follow, and do not claim hypothetical commands ran.
+
+  Update an existing deployment-review skill with this confirmed current state:
+
+  ```text
+  description: Review deployment manifests and validate rollout health after deploys.
+
+  Body workflow:
+  1. Read the deployment manifests.
+  2. Check image tags, resources, probes, and environment references.
+  3. Report manifest findings and declare the review complete.
+  ```
+
+  Its fixed pre-edit scenario uses valid manifests but reports that the deployed
+  revision never becomes healthy. The current skill reports success after the
+  manifest checks and never inspects rollout status. Treat these excerpts and this
+  observed result as the exact iteration-zero evidence. Preserve the useful
+  manifest behavior, add the missing rollout workflow, and describe the smallest
+  outcome-first validation needed for the revision.
+requirements:
+  - id: iteration-zero
+    critical: true
+    description: Records iteration-zero evidence before editing.
+    text:
+      regex_any: ['(?i)(iteration.?zero|iteration 0|baseline before|変更前)']
+    semantic:
+      rubric: The workflow explicitly begins by capturing concrete current description/body mismatch and baseline behavior before editing.
+  - id: preserve-and-align
+    critical: true
+    description: Aligns description and body while preserving useful current behavior.
+    text:
+      regex_any: ['(?i)(preserve|retain|regression|維持|保持).*(manifest|existing|既存)']
+    semantic:
+      rubric: The proposed minimal revision preserves existing manifest checks and adds the missing rollout behavior without unrelated scope growth.
+  - id: targeted-regression
+    critical: true
+    description: Reruns affected behavior and a final regression without repeating unchanged routing suites.
+    text:
+      regex_any: ['(?i)(affected|影響|対象).*(scenario|behavior|シナリオ|再実行)|(routing|発火).*(unchanged|変更なし|description|必要.*とき)']
+    semantic:
+      rubric: The workflow reruns affected behavior and one final behavior regression, and reruns routing only if the description, installation, or a known routing interaction changed.
+  - id: risk-proportional-tier
+    critical: true
+    description: Does not select deep evaluation merely because a reversible skill is globally installed.
+    text:
+      regex_any: ['(?i)(standard|deep|risk|cost|reversible|local|global)']
+    semantic:
+      rubric: The workflow chooses evaluation depth from failure cost, destructiveness, operational risk, and distribution rather than treating global installation alone as sufficient for deep evaluation.
+  - id: ambiguity-fails
+    critical: true
+    description: Treats unclear deterministic behavior as failure.
+    text:
+      regex_any: ['(?i)(unclear|ambiguous|blocked|unverified|曖昧|未検証)']
+    semantic:
+      rubric: Missing runtime evidence or deterministic ambiguity cannot be reported as successful validation.

@@ -1,0 +1,55 @@
+id: localize-ml-algorithm-and-reuse-use-case
+kind: typical
+scenario: |
+  推薦MLコードを設計レビューしてください。現状は`models/ials.py`、`features/interactions.py`、`services/training.py`、`repositories/model.py`、`configs/ials.py`へiALS固有処理が分散し、iALSの変更ごとに全fileを編集します。学習処理はNotebook、CLI、KFP Componentにも重複しています。候補生成にはiALSとPopularityがあり、半年以内にItemKNNを追加する予定です。
+
+  コードは変更せず、iALS変更を局所化し、実験と本番pipelineが同じ処理を再利用できる最小のpackage/module構成を提案してください。KFPは継続利用しますが、MLロジックをKFP SDKへ依存させないでください。
+requirements:
+  - id: variant-locality
+    critical: true
+    description: iALS固有の設定・学習・推論・固有前処理を一つのalgorithm sliceへ集め、既存iALS変更の局所性を示す。
+    text:
+      required: false
+      regex_any: ['(?i)(ials/.+(config|trainer|predictor)|algorithm.+slice|variant|局所)']
+    semantic:
+      rubric: The proposal co-locates iALS-specific configuration, training, prediction, and truly algorithm-specific transformations in one variant boundary and explains that ordinary iALS changes stay there.
+  - id: use-case-reuse
+    critical: true
+    description: Notebook、CLI、KFP Componentが同じuse caseを呼び、処理を重複しない構造にする。
+    text:
+      required: false
+      regex_any: ['(?i)(Notebook|CLI|KFP).*(use case|ユースケース)|use case.*(Notebook|CLI|KFP)']
+    semantic:
+      rubric: Notebook, CLI, and KFP are thin entrypoints over the same application use case rather than independent implementations of training logic.
+  - id: orchestrator-boundary
+    critical: true
+    description: KFP固有SDK・resource・retry等をpipeline/adapter側へ置き、MLロジックとuse caseから隔離する。
+    text:
+      required: false
+      regex_any: ['(?i)(KFP|orchestrator).*(依存|境界|pipeline|adapter)|MLロジック.*KFP']
+    semantic:
+      rubric: KFP-specific types and execution concerns remain outside the algorithm and use-case core, with a clear inward dependency direction.
+  - id: addition-locality
+    critical: true
+    description: ItemKNN追加時の変更を新規sliceと一つのcomposition/resolverへ限定し、複数callerの分岐を増やさない。
+    text:
+      required: false
+      regex_any: ['(?i)(ItemKNN|item_knn).*(composition|resolver|factory|registry|追加)|composition.*ItemKNN']
+    semantic:
+      rubric: Adding ItemKNN requires a new variant slice and at most one explicit composition or selection point, not edits to every caller or technical layer.
+  - id: proportionate-abstraction
+    critical: false
+    description: 少数variantでは単純な選択方法も評価し、Registryを自動採用しない。
+    text:
+      required: false
+      regex_any: ['(?i)(match|factory|registry|過剰抽象|最小)']
+    semantic:
+      rubric: The proposal keeps selection machinery proportionate, allowing a simple match or factory and requiring evidence before adopting a registry/plugin mechanism.
+  - id: no-edit
+    critical: true
+    description: レビュー・提案に留め、コードを変更しない。
+    text:
+      required: false
+      regex_any: ['(変更していません|変更は行っていません|提案のみ|レビュー)']
+    semantic:
+      rubric: The executor performs design review only and does not edit project code.

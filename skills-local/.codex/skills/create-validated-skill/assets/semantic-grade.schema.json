@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["requirements", "summary"],
+  "properties": {
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "verdict", "evidence", "issue", "cause", "general_fix_rule"],
+        "properties": {
+          "id": { "type": "string" },
+          "verdict": { "type": "string", "enum": ["pass", "fail", "unclear"] },
+          "evidence": { "type": "string" },
+          "issue": { "type": "string" },
+          "cause": { "type": "string" },
+          "general_fix_rule": { "type": "string" }
+        }
+      }
+    },
+    "summary": { "type": "string" }
+  }
+}

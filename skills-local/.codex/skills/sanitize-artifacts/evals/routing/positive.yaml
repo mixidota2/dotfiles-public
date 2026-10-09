@@ -1,0 +1,6 @@
+kind: positive
+expected_activation: true
+cases:
+  - id: polish-generated-handbook
+    critical: true
+    prompt: Review the handbook we just drafted and rewrite it as a clean standalone deliverable. Remove any references to my prompts, earlier versions, and implementation constraints.

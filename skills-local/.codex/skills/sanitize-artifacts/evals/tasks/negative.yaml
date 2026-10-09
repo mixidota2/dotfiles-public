@@ -1,0 +1,19 @@
+id: create-new-status-template
+kind: negative
+scenario: |
+  Create a new weekly project status template with sections for outcomes, risks, decisions, and next actions. Keep it concise and suitable for a product team.
+requirements:
+  - id: completes-new-artifact-request
+    critical: true
+    description: Creates the requested reusable status template rather than discussing sanitation of a nonexistent prior artifact.
+    text:
+      required: false
+      regex_any:
+        - '(?i)(outcomes|results)'
+        - '(?i)risks'
+        - '(?i)decisions'
+        - '(?i)next actions'
+      regex_none:
+        - '(?i)(sanitize|prompt leakage|conversation residue)'
+    semantic:
+      rubric: The response directly supplies a concise weekly project status template with all four requested sections and does not invent a sanitation task.

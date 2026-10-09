@@ -1,0 +1,6 @@
+kind: negative
+expected_activation: false
+cases:
+  - id: TODO-negative-case
+    critical: false
+    prompt: TODO Add an unrelated request sharing some vocabulary.

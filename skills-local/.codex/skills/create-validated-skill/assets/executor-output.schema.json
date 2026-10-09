@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "deliverable",
+    "phase_trace",
+    "unclear_points",
+    "discretionary_fill_ins",
+    "retries",
+    "uncompleted"
+  ],
+  "properties": {
+    "deliverable": { "type": "string" },
+    "phase_trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["understanding", "planning", "execution", "formatting"],
+      "properties": {
+        "understanding": { "$ref": "#/$defs/phase" },
+        "planning": { "$ref": "#/$defs/phase" },
+        "execution": { "$ref": "#/$defs/phase" },
+        "formatting": { "$ref": "#/$defs/phase" }
+      }
+    },
+    "unclear_points": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" }
+    },
+    "discretionary_fill_ins": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "retries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "reasons"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 0 },
+        "reasons": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "uncompleted": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "note"],
+      "properties": {
+        "status": { "type": "string", "enum": ["ok", "stuck", "skipped"] },
+        "note": { "type": "string" }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issue", "cause", "general_fix_rule"],
+      "properties": {
+        "issue": { "type": "string" },
+        "cause": { "type": "string" },
+        "general_fix_rule": { "type": "string" }
+      }
+    }
+  }
+}

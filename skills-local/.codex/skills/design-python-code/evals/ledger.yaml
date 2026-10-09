@@ -1,0 +1,3527 @@
+skill: design-python-code
+decision:
+  status: accepted
+  mechanism: skill
+  rationale: Pythonコードの構造設計・実装・reviewで繰り返し使う専門的な判断workflowであり、常時適用する短いrepository ruleや機械的linterでは代替できない。
+  existing_skills_checked:
+  - write-design-doc
+  - skill-creator
+  - create-validated-skill
+  overlap: write-design-docは複数system・teamにまたがる合意文書を作るworkflowであり、Python code単位の配置・責務分割・実装reviewは対象外。
+updates:
+- id: ml-vertical-slice-20260828
+  classification: behavioral-update
+  user_problem: technical layer分割によりalgorithm変更が複数箇所へ波及し、Notebook・CLI・ML pipelineにも同じ処理が重複する設計を避けたい。
+  intended_deliverable: design-python-codeが変更理由をvariantへ閉じ込め、共通use caseを複数entrypointから呼ぶ最小構成を設計・reviewできること。
+  inputs: 既存tree、caller、実行形態、algorithm/provider variation、設定・DI、公開API、変更シナリオ。
+  outputs: 提案tree、variant/use case/pipeline/infrastructureの責務、依存方向、既存variant変更と新規variant追加の非波及範囲、trade-off。
+  constraints:
+  - 固定のML directory templateを全Python projectへ強制しない。
+  - domainやtechnical layerを名前だけで追加しない。
+  - orchestrator、Registry、Protocolは現在の必要性に比例させる。
+  external_side_effects: skill package内のinstruction・reference・eval更新だけ。対象projectや外部systemは変更しない。
+  risk_assessment:
+    incorrect_deliverable: 設計助言がalgorithm変更の波及や実験・本番処理の分岐を固定化する可能性がある。
+    authority_and_reversibility: local skill文書の変更でありversion controlから復元可能。利用先projectは自動変更しない。
+    operational_reliance: Python/ML code設計時の判断に利用されるため、誤った固定template化を避ける必要がある。
+    distribution: 個人環境のinstalled skill。
+    tier: deepを維持する。
+  critical_requirements:
+  - id: variant-locality
+    statement: algorithm固有の変更を一つのvariant sliceへ局所化する。
+  - id: use-case-reuse
+    statement: Notebook、CLI、pipelineが同じuse caseを再利用する。
+  - id: orchestrator-boundary
+    statement: orchestrator固有依存をapplication coreへ漏らさない。
+  - id: addition-locality
+    statement: 新規variant追加時の既存変更を一つのcomposition/selection pointへ限定する。
+  scenarios:
+  - typical: iALSがtechnical layerへ分散し、KFP・CLI・Notebookで学習処理が重複している推薦systemを再設計する。
+  - edge: 小規模で凝集したlibraryはfile数だけでvertical slice化せずflat packageを維持する。
+  - negative: 単純なSyntaxError修正には構造設計を持ち込まない。
+  trigger_examples:
+    positive: ML algorithm変更がmodels/features/services/configへ散るので構成を見直したい。
+    negative: Python functionの括弧抜けを直したい。
+    near_miss: 複数team合意用のML pipeline Design Docを書きたい。
+iterations:
+- id: routing-iteration-0
+  revision: initial implementation
+  run: 20260818T104647Z
+  result: failed
+  evidence: isolatedはpositive 1.0・negative false activation 0.0だがnear-miss false activation
+    0.75。normalは未installのためpositive activation 0.0。
+  failure: descriptionがDesign Doc、概念説明、合意済みimport-linter設定の除外を明示せず、通常環境にはtarget skillが未配置だった。
+  change: descriptionへ3種のnear-miss除外を追加し、dotfilesへ配置してnormal profileから発見可能にする。
+- id: behavior-iteration-0
+  revision: trigger-fixed implementation
+  run: 20260818T115418Z
+  result: evaluator-defect
+  evidence: typicalとnegativeは各2 trialでpass。edgeは対象repository未提供かつread-onlyなのに実装完了を要求し、全trialが安全に停止した。
+  failure: scenarioの入力と要求が矛盾し、skillの実装behaviorを観測できなかった。
+  change: 確認済みtree・公開API・設定/DI・未commit対象をscenarioへ埋め込み、read-onlyで観測可能な分割案・移行手順・検証計画へ要件を修正した。
+- id: behavior-iteration-1
+  revision: evaluator-input-fixed
+  run: 20260818T115911Z
+  result: evaluator-defect
+  evidence: edgeとnegativeは2/2、typicalは1/2 pass。残るtypical trialはsemantic passだが、no-editの自然な同義表現をsurface
+    regexが拾わずunclearだった。
+  failure: text graderが「コード変更は行っていません」を認識しなかった。
+  change: skill出力を定型化せず、no-edit regexへ自然な同義表現を追加した。
+- id: routing-iteration-1
+  revision: near-miss-exclusions-and-installed
+  run: 20260818T114211Z
+  result: clear
+  evidence: isolated/normalの各24 trialでpositive activation 1.0、negative/near-miss false
+    activation 0.0。
+  failure: ''
+  change: ''
+- id: behavior-iteration-2
+  revision: evaluator-fixed
+  run: 20260818T120342Z
+  result: clear
+  evidence: 20260818T115911Zでpass済みのedge・negative各2 trialと、surface grader修正後のtypical
+    2 trialが全critical要件を満たした。
+  failure: ''
+  change: ''
+- id: behavior-iteration-3
+  revision: evaluator-fixed-regression
+  run: 20260818T120557Z
+  result: clear
+  evidence: typical・edge・negativeを各2 trial再実行し6/6 pass。critical failureとdeterministic
+    unclearは0。
+  failure: ''
+  change: ''
+- id: baseline-comparison
+  revision: no-skill fresh agents
+  run: manual-fresh-agent-baseline
+  result: comparable
+  evidence: no-skill baselineもtypicalとedgeで実用的な構成案を作成できた。skillは固有知識ではなく、証拠確認、変更権限、非波及先、設定/DI再利用、完了checkを反復可能にする価値を持つ。
+  failure: ''
+  change: SKILL.mdを55行のrouting/workflowに保ち、一般モデルが既に持つ設計知識の重複をreferencesへ限定した。
+- id: ml-vertical-slice-behavior-1
+  revision: variant-locality-and-shared-use-case
+  run: 20260828T132215Z
+  result: clear
+  evidence: ML vertical sliceシナリオを2 trial実行し、variant局所性、共通use case、KFP境界、ItemKNN追加局所性を含む全要件がpassした。
+  failure: ''
+  change: ''
+- id: ml-vertical-slice-baseline-and-convergence
+  revision: variant-locality-and-shared-use-case
+  run: 20260828T132459Z
+  result: clear-comparable-baseline
+  evidence: skillあり2 trial、skillなし2 trialとも全要件pass。skillありは変更先・非波及先、未確認事項、固定templateを避ける再検討条件を一貫して出し、既存skillの制約保持・再現性という価値を維持した。
+  failure: baselineもscenarioの明示情報から実用的な設計を作れたため、要件達成率の差はなかった。
+  change: instructionを増やして正答を独占するのではなく、一般原則をSKILL.mdに2文、詳細をarchitecture referenceへ限定した。
+- id: ml-vertical-slice-final-regression
+  revision: variant-locality-and-shared-use-case
+  run: 20260828T132910Z
+  result: clear
+  evidence: typical、edge、negative、ML、holdoutを各2 trial、計10 trial実行し、task pass rate・requirement pass rateとも1.0。critical failureとdeterministic unclearは0。
+  failure: ''
+  change: ''
+failure_patterns:
+- general_fix_rule: Trigger descriptions must state adjacent mechanisms that should
+    own near-miss tasks.
+  example_issue: Design Doc、概念説明、合意済みimport-linter設定の依頼で過剰発火した。
+  seen_in:
+  - run: 20260818T104647Z
+    task: design-doc-system
+    trial: 1
+    source: routing
+- general_fix_rule: 既存コード、依存定義、テスト、リポジトリ指示ファイルを含むサービス一式を、明示された作業ディレクトリへ配置する必要があります。
+  example_issue: 実装対象となるPythonサービスの所在が不明です。
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: executor
+- general_fix_rule: 対象リポジトリ内で`git status`と差分を確認できる状態にし、依頼と無関係な変更には触れず、重なる変更は差分を保ったまま局所編集します。
+  example_issue: 既存の未コミット変更のうち保護すべき対象を判別できません。
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: executor
+- general_fix_rule: Work against the actual writable repository, retain or add the
+    existing public-facade re-export, and verify `from app import create_order` with
+    an import smoke test.
+  example_issue: The public import contract was neither preserved in an implementation
+    nor verified.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: preserve-contract
+- general_fix_rule: Inspect the current configuration and DI entry points first, then
+    route the split modules through those exact mechanisms without introducing duplicate
+    settings or containers.
+  example_issue: Existing configuration and dependency-injection mechanisms were not
+    inspected or reused.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: reuse-existing-injection
+- general_fix_rule: After implementing in the correct repository, run the public-import
+    smoke test, relevant behavioral tests, and all applicable repository-defined lint,
+    formatting, and type checks.
+  example_issue: None of the required verification layers were executed.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: validate-boundary
+- general_fix_rule: Inspect the existing architecture and split responsibilities so
+    domain decisions remain framework-independent while FastAPI DI and SQLAlchemy
+    operations stay at adapter/composition boundaries.
+  example_issue: There is no observable code demonstrating that business decisions
+    remain separated from FastAPI and SQLAlchemy concerns.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: avoid-framework-leak
+- general_fix_rule: '`services.py`、`app/__init__.py`、設定・DI構成、関連テストを含むリポジトリをworkspaceへ配置してください。'
+  example_issue: 実装対象のPythonサービスが見つからない
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: executor
+- general_fix_rule: 対象workspaceへの書込み権限を付与してください。
+  example_issue: 変更を適用できない
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: executor
+- general_fix_rule: Implement the split while retaining or re-exporting `create_order`
+    from `app`, then verify the exact public import in a test or smoke check.
+  example_issue: The public `from app import create_order` contract is not observably
+    preserved.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: preserve-contract
+- general_fix_rule: Inspect the existing configuration and DI composition points first,
+    then route the split services through those mechanisms without introducing duplicate
+    environment reads or a second injection model.
+  example_issue: Reuse of the existing environment-loading and dependency-injection
+    mechanisms cannot be confirmed.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: reuse-existing-injection
+- general_fix_rule: Record the initial `git status` and relevant diffs, identify pre-existing
+    changes, and ensure the final diff touches only files required for the service
+    split.
+  example_issue: No unrelated files were modified, but the required identification
+    of other people's uncommitted changes is not demonstrated.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: protect-unrelated-changes
+- general_fix_rule: Run a smoke test for `from app import create_order`, the relevant
+    behavioral tests, and all applicable repository-defined lint, formatting, and
+    type checks; report their concrete results.
+  example_issue: None of the required verification layers were executed.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: validate-boundary
+- general_fix_rule: Place business rules in framework-independent service/domain code
+    and keep FastAPI request wiring and SQLAlchemy persistence details in existing
+    adapters or boundary modules, then verify through code review and tests.
+  example_issue: The boundary between business decisions and FastAPI/SQLAlchemy details
+    cannot be assessed.
+  seen_in:
+  - run: 20260818T115418Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: avoid-framework-leak
+- general_fix_rule: 対象プロジェクト一式を workspace に配置し、少なくとも修正対象ファイルと対応テストを参照可能にしてください。
+  example_issue: 修正対象のPythonファイルとテストが不明です。
+  seen_in:
+  - run: 20260818T115418Z
+    task: isolated-syntax-fix
+    trial: 1
+    source: executor
+- general_fix_rule: 対象workspaceへの書き込み権限を付与してください。
+  example_issue: ファイルを修正できません。
+  seen_in:
+  - run: 20260818T115418Z
+    task: isolated-syntax-fix
+    trial: 1
+    source: executor
+- general_fix_rule: 対象ソースとテストをworkspaceへ配置し、書き込み可能な環境で再実行してください。
+  example_issue: 修正対象のPythonファイルとテストが不明です。
+  seen_in:
+  - run: 20260818T115418Z
+    task: isolated-syntax-fix
+    trial: 2
+    source: executor
+- general_fix_rule: 実装前に注文entity、状態writer、既存testを調べ、キャンセル規則のsemantic ownerとstate authorityを確定する。
+  example_issue: 現在の注文状態、不変条件、キャンセル可否の具体的な判定項目が不明。
+  seen_in:
+  - run: 20260818T115418Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 外部side effectを伴う状態遷移では、成功、拒否、一時失敗、結果不明、重複要求を先に定義してから状態modelを決める。
+  example_issue: キャンセルと返金の整合性、timeout時の正しい最終状態が不明。
+  seen_in:
+  - run: 20260818T115418Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 移動前にentrypoint、composition root、公開API、永続化経路、admin・job・raw SQLを調査し、互換性と不変条件を壊さない移行順を決める。
+  example_issue: 公開import、entrypoint、DI、ORM、alternate writerの有無が不明。
+  seen_in:
+  - run: 20260818T115418Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 実装前に対象tree、caller、composition root、公開import、testを確認し、既存の組み立て方式と互換性を保つ
+  example_issue: 実際のsymbol、import graph、entrypoint、DI、公開API、test配置が不明
+  seen_in:
+  - run: 20260818T115418Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 外部side effectを伴う状態遷移では、成功・拒否・一時失敗・結果不明・重複の状態とstate authorityを先に定義する
+  example_issue: キャンセルと返金の実行順序および失敗時の状態が不明
+  seen_in:
+  - run: 20260818T115418Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: domain操作へ状態変更を集約する際は、全writerを列挙し、迂回経路を移行または明示的に制約する
+  example_issue: Order状態のalternate writerが不明
+  seen_in:
+  - run: 20260818T115418Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 実装前にrepositoryのtreeとsymbol/caller/state/依存一覧を採取し、提案上の移動先と互換shimを実コードに合わせて確定する。
+  example_issue: 既存symbol、import graph、entrypoint、DI、test、ORM model、公開importを確認できない。
+  seen_in:
+  - run: 20260818T120342Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 外部side effectを伴う状態遷移では、成功・拒否・一時失敗・結果不明・重複の各状態とstate authorityを実装前に定義する。
+  example_issue: キャンセルと返金の原子性、およびtimeout時の注文状態が未定義。
+  seen_in:
+  - run: 20260818T120342Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: consumerが必要とする最小操作から契約を定義し、lifecycleや実装が同じ場合は統合、独立して交換・利用される場合だけ分割する。
+  example_issue: '`PaymentGateway`がchargeとrefundの両方を持つべきか分割すべきか未確定。'
+  seen_in:
+  - run: 20260818T120342Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 設計確定前に実コードのtree、import、entrypoint、`__init__.py`、testを確認し、移動単位と互換shimをsymbol単位で決める。
+  example_issue: 実際のsymbol、import graph、循環依存、公開APIが不明。
+  seen_in:
+  - run: 20260818T120342Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 外部side effectを伴う状態遷移では、成功、拒否、一時失敗、結果不明、retryの各状態とstate authorityを先に定義する。
+  example_issue: キャンセル時の返金失敗・timeout・結果不明における注文状態が不明。
+  seen_in:
+  - run: 20260818T120342Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: variation pointの実際の選択軸を確認し、分岐をcomposition rootまたは一つのresolverへ閉じ込める。
+  example_issue: providerを何に基づいて選択するか不明。
+  seen_in:
+  - run: 20260818T120342Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 移行前に既存testと公開signatureを記録し、移動中は契約を変更しない
+  example_issue: '`create_order`と`calculate_total`の正確なsignature・返値・例外'
+  seen_in:
+  - run: 20260818T120557Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: executor
+- general_fix_rule: '`commit`、`flush`、`rollback`の境界を移行前後で固定し、構造変更とtransaction変更を同時に行わない'
+  example_issue: SQLAlchemy transactionの所有者
+  seen_in:
+  - run: 20260818T120557Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: executor
+- general_fix_rule: 移行前にsymbol参照を全検索し、公開consumerがあれば互換re-exportを残す
+  example_issue: '`calculate_total`が外部から直接importされているか'
+  seen_in:
+  - run: 20260818T120557Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: executor
+- general_fix_rule: 移動前に公開関数のsignatureとobservable behaviorをcharacterization testで固定し、分割では変更しない。
+  example_issue: create_orderの正確なsignature、戻り値、例外契約が未確認
+  seen_in:
+  - run: 20260818T120557Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: executor
+- general_fix_rule: 既存のtransaction境界をそのまま移し、分割とtransaction設計変更を同時に行わない。
+  example_issue: SQLAlchemy transactionのownerが未確認
+  seen_in:
+  - run: 20260818T120557Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: executor
+- general_fix_rule: 削除前に全利用箇所を検索し、互換性を確認できなければ旧モジュールを薄い再export shimとして残す。
+  example_issue: app.servicesを直接importする利用者の有無が未確認
+  seen_in:
+  - run: 20260818T120557Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: executor
+- general_fix_rule: 対象のPythonコードとtestをworkspaceへ配置し、書き込み可能な環境で再実行する
+  example_issue: 修正対象のfunctionとtestを特定できない
+  seen_in:
+  - run: 20260818T120557Z
+    task: isolated-syntax-fix
+    trial: 1
+    source: executor
+- general_fix_rule: 対象repositoryまたは必要なソースとtestをrunner workspaceへ配置してから実行します。
+  example_issue: 修正対象のfunctionとtestを特定できない
+  seen_in:
+  - run: 20260818T120557Z
+    task: isolated-syntax-fix
+    trial: 2
+    source: executor
+- general_fix_rule: 実repositoryではtreeだけで判断せず、entrypoint、import、composition root、public
+    import、test、永続化writerを調査してからsymbol単位の移動先を確定します。
+  example_issue: 現行symbol、caller、import graph、entrypoint、DI方式、公開API、test配置が未確認です。
+  seen_in:
+  - run: 20260818T120557Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 明確な拒否、一時失敗、結果不明、重複実行を分け、各場合の注文状態、再試行、idempotency、source of truthを業務ownerと決定します。
+  example_issue: 返金失敗・timeout時に注文状態をどう扱うかが未確定です。
+  seen_in:
+  - run: 20260818T120557Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 通常のservice以外の全writerを列挙し、キャンセル不変条件を迂回する経路を閉じるか明示的に統制します。
+  example_issue: 注文状態を書き換えるalternate writerの有無が不明です。
+  seen_in:
+  - run: 20260818T120557Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 実装前にtreeだけでなくentrypoint、composition root、公開import、testおよびimport
+    graphを確認し、境界を補正する。
+  example_issue: 実際のimport graph、entrypoint、DI、公開API、test配置が不明。
+  seen_in:
+  - run: 20260818T120557Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 外部side effectを伴う状態遷移では、timeout・結果不明・retryを含む状態表と処理順序を決めてからuse
+    case境界を確定する。
+  example_issue: キャンセル時に返金を先に行うか、注文状態を先に変更するかが不明。
+  seen_in:
+  - run: 20260818T120557Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 不変条件をdomainへ集約する際は、通常経路以外のwriterも列挙し、迂回更新を禁止または検証する。
+  example_issue: 注文状態を変更できる全経路が不明。
+  seen_in:
+  - run: 20260818T120557Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 実リポジトリでは tree だけで判断せず、各 symbol の caller、循環 import、依存注入箇所を確認してから境界を確定する。
+  example_issue: 現行各モジュールの実際の責務と import graph
+  seen_in:
+  - run: 20260819T045635Z
+    task: holdout-library-flat-layout
+    trial: 1
+    source: executor
+- general_fix_rule: 再配置前に documented import と consumer test を調査し、package facade から互換
+    symbol を再公開する。
+  example_issue: 既存の公開 API と `package.auth` から直接 import されている symbol
+  seen_in:
+  - run: 20260819T045635Z
+    task: holdout-library-flat-layout
+    trial: 1
+    source: executor
+- general_fix_rule: OAuth の状態・不変条件・外部通信・failure contract を確認し、単純な認証適用なら単一module、独立した複数責務があれば
+    auth subpackage とする。
+  example_issue: 予定される OAuth の具体的範囲
+  seen_in:
+  - run: 20260819T045635Z
+    task: holdout-library-flat-layout
+    trial: 1
+    source: executor
+- general_fix_rule: 認証方式の選択とtoken lifecycleは auth側に局所化し、request表現やtransportへ方式固有分岐を分散させない。
+  example_issue: 認証情報を request と transport のどちらで適用しているか
+  seen_in:
+  - run: 20260819T045635Z
+    task: holdout-library-flat-layout
+    trial: 1
+    source: executor
+- general_fix_rule: 実コードでは`auth.py`のsymbol、caller、状態、import、公開経路を確認し、OAuthと異なる変更理由が実在する場合だけ分割する。
+  example_issue: 既存`auth.py`が所有する認証方式、状態、外部依存、公開symbolが不明。
+  seen_in:
+  - run: 20260819T045635Z
+    task: holdout-library-flat-layout
+    trial: 2
+    source: executor
+- general_fix_rule: 独立した状態、外部認可server、refresh、固有failureのいずれかを持つ場合は専用moduleへ分離し、単純なheader付与なら現状維持を優先する。
+  example_issue: OAuthが静的token付与だけか、取得・refresh・期限管理まで含むか不明。
+  seen_in:
+  - run: 20260819T045635Z
+    task: holdout-library-flat-layout
+    trial: 2
+    source: executor
+- general_fix_rule: 内部再編時は既存の公開symbolをfacadeから再公開し、consumer向けimport smoke testで互換性を確認する。
+  example_issue: 現在のpublic import pathが不明。
+  seen_in:
+  - run: 20260819T045635Z
+    task: holdout-library-flat-layout
+    trial: 2
+    source: executor
+- general_fix_rule: 実repositoryでentrypoint、caller、tests、設定注入、公開importを確認し、提案した境界を既存命名とDI方式へ合わせる
+  example_issue: 対象fileの具体的なsymbol、import関係、公開APIが確認できない
+  seen_in:
+  - run: 20260828T132215Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 全algorithmに一律のclass階層を課さず、consumerが共通して必要とする操作だけを契約化する
+  example_issue: Popularityが学習済みartifactを必要とするか不明
+  seen_in:
+  - run: 20260828T132215Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 共通の業務的interaction表現だけをcontractに置き、重み付け、疎行列化、欠損処理などalgorithm固有変換は各variantへ残す
+  example_issue: interactionデータのどこまでがalgorithm共通か不明
+  seen_in:
+  - run: 20260828T132215Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 保存portとalgorithm固有serializationを分離し、既存artifactを継続利用する場合はversion付き互換性testを先に追加する
+  example_issue: model artifactの保存先と互換性要件が不明
+  seen_in:
+  - run: 20260828T132215Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 実装前にNotebook、CLI、KFP Componentのcallerとtestを読み、三経路に共通するconsumer契約からuse
+    case I/Oを確定する。
+  example_issue: 現在の学習処理の正確なinput、result、side effect、failureが不明。
+  seen_in:
+  - run: 20260828T132215Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: artifactのsemantic ownerと唯一のwriterを特定し、algorithm固有serializationと保存媒体adapterを分離する。
+  example_issue: model artifactの保存先、schema、versioning、writerが不明。
+  seen_in:
+  - run: 20260828T132215Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: 全algorithmへ同一lifecycleを強制せず、候補生成と学習の契約を分離し、必要な契約だけ実装させる。
+  example_issue: Popularityが学習や永続artifactを必要とするか不明。
+  seen_in:
+  - run: 20260828T132215Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: 実repositoryでentrypoint、import graph、公開API、設定注入、artifact保存、testを確認し、module名と境界を既存用語へ合わせます。
+  example_issue: 対象ソースとtestの実装詳細を確認できません。
+  seen_in:
+  - run: 20260828T132459Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: artifactの意味・形式はalgorithm側、保存媒体と外部SDK変換はadapter側へ置き、実際の責務単位で分割します。
+  example_issue: '`repositories/model.py`を丸ごとiALSへ移すべきか確定できません。'
+  seen_in:
+  - run: 20260828T132459Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 能力差を空実装で隠さず、consumerが本当に共有する最小操作だけを契約化します。
+  example_issue: Popularityが学習契約を必要とするか不明です。
+  seen_in:
+  - run: 20260828T132459Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 形式変更前にversion識別、読込み互換性、rollback期間を決め、round-tripまたは拒否契約をtestします。
+  example_issue: 既存artifactの後方互換要件が不明です。
+  seen_in:
+  - run: 20260828T132459Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 名前や現在のdirectoryではなく、algorithm変更と一緒に変わる意味・不変条件で所有先を決めます。iALSのconfidenceやmatrix表現はiALSへ、algorithm非依存のcanonical
+    interaction schemaだけを共有側へ残します。
+  example_issue: interaction生成のうち、推薦全体で共通の処理とiALS固有処理の境界が不明です。
+  seen_in:
+  - run: 20260828T132459Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: 保存先SDK・I/Oはinfrastructure adapterが所有し、algorithm固有のencode/decodeはvariantが所有します。境界ではapplication上のartifact/metadata契約を使います。
+  example_issue: model repositoryが保存先adapterなのか、iALS serializationも所有しているのか不明です。
+  seen_in:
+  - run: 20260828T132459Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: 共通契約へ無理に合わせず、consumerが同じ目的で交換する操作だけを契約化します。状態を持たないPopularityなら小さなmoduleまたはcallableで十分です。
+  example_issue: Popularityにも学習use caseとartifact保存が必要か不明です。
+  seen_in:
+  - run: 20260828T132459Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: 移動前に既存signature、戻り値、例外、async属性をcharacterization testで固定し、移動では一切変更しません。
+  example_issue: '`create_order`、`calculate_total`、保存処理の正確なsignatureと同期・非同期方式'
+  seen_in:
+  - run: 20260828T132910Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: executor
+- general_fix_rule: 既存のcommit、flush、refresh、rollback、例外伝播の順序を保存関数へそのまま移し、リファクタリングとtransaction設計変更を同時に行いません。
+  example_issue: transactionの所有者とcommit/rollback境界
+  seen_in:
+  - run: 20260828T132910Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: executor
+- general_fix_rule: 移行前に全repositoryのimportを検索し、利用があれば互換facadeから一時的に再公開して段階的に移行します。
+  example_issue: '`app.services.calculate_total`を直接利用する内部・外部consumerの有無'
+  seen_in:
+  - run: 20260828T132910Z
+    task: preserve-framework-and-public-api
+    trial: 1
+    source: executor
+- general_fix_rule: 移行前に現行コードとtestから観察可能な契約を記録し、責務移動では契約とtransaction ownershipを変更しない。
+  example_issue: 現行の関数署名、戻り値、例外、およびSQLAlchemy transaction境界の詳細が未提示。
+  seen_in:
+  - run: 20260828T132910Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: executor
+- general_fix_rule: 移動前にrepository全体のimportを検索し、既存consumerがあるsymbolには段階移行用re-exportを残す。
+  example_issue: '`calculate_total`や`app.services.create_order`を直接importする内部consumerの有無が未確認。'
+  seen_in:
+  - run: 20260828T132910Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: executor
+- general_fix_rule: 必要ならSettings値を`calculate_total`の明示的な引数として既存`create_order`から渡し、価格module自身に環境変数やFastAPI
+    DIを参照させない。
+  example_issue: 価格計算がSettingsを必要とするか不明。
+  seen_in:
+  - run: 20260828T132910Z
+    task: preserve-framework-and-public-api
+    trial: 2
+    source: executor
+- general_fix_rule: '`auth.py`のsymbol、保持状態、caller、外部SDK依存を確認し、OAuthとの共通契約と固有責務を識別してから最終的な分割単位を決めます。'
+  example_issue: 既存の認証方式と`auth.py`の内部責務が不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: holdout-library-flat-layout
+    trial: 1
+    source: executor
+- general_fix_rule: 内部moduleを移動する前に公開symbolとimport pathを特定し、package facade経由の互換性を維持します。
+  example_issue: 現在の公開import面が不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: holdout-library-flat-layout
+    trial: 1
+    source: executor
+- general_fix_rule: token取得・refresh・保存が独立して変更またはtestされる責務になった時点で、認証subpackageへの昇格を再評価します。
+  example_issue: OAuth方式のtoken lifecycleが不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: holdout-library-flat-layout
+    trial: 1
+    source: executor
+- general_fix_rule: 分割前にsymbol、caller、保持状態、外部依存、変更理由を確認し、独立した認証variantが実在するときだけsubpackageへ昇格します。
+  example_issue: 既存`auth.py`が所有する認証方式、状態、公開symbolが不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: holdout-library-flat-layout
+    trial: 2
+    source: executor
+- general_fix_rule: 認証方式固有の状態と変更理由が存在する場合は専用moduleへ閉じ、単純な同種処理なら既存moduleを維持します。
+  example_issue: OAuthがtoken取得・更新・期限管理を必要とする方式か、静的token付与だけか不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: holdout-library-flat-layout
+    trial: 2
+    source: executor
+- general_fix_rule: 内部移動前にconsumer importを調査し、facadeから再公開して互換性を保ちます。既存の注入方式があれば再利用します。
+  example_issue: 現在の公開import経路と認証注入契約が不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: holdout-library-flat-layout
+    trial: 2
+    source: executor
+- general_fix_rule: 対象ソースとテストを workspace に配置し、書き込み可能な環境で再実行してください。
+  example_issue: 修正対象の Python ファイルとテストが見つからない
+  seen_in:
+  - run: 20260828T132910Z
+    task: isolated-syntax-fix
+    trial: 1
+    source: executor
+- general_fix_rule: 対象コードとテストを workspace に配置し、書き込み可能な環境で再実行してください。
+  example_issue: 修正対象の Python ファイルとテストが見つからない
+  seen_in:
+  - run: 20260828T132910Z
+    task: isolated-syntax-fix
+    trial: 2
+    source: executor
+- general_fix_rule: 実装前に実repositoryのcaller、公開import、test、設定注入経路を確認し、提案moduleへsymbol単位で割り当てる
+  example_issue: 実際のclass・function・import graphを特定できない
+  seen_in:
+  - run: 20260828T132910Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: serializationはalgorithm、transportと永続化はstore adapterに置き、既存consumerとの互換testで境界を確定する
+  example_issue: 現在のmodel artifact形式と保存先の責務境界が不明
+  seen_in:
+  - run: 20260828T132910Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 全algorithmへ不要なfit状態を強制せず、consumerが本当に共通利用する最小契約へ分ける
+  example_issue: Popularityが学習artifactを必要とするか不明
+  seen_in:
+  - run: 20260828T132910Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 1
+    source: executor
+- general_fix_rule: 実repositoryではentrypoint、caller、test、設定注入、公開importを確認し、互換性を保つ移動単位と契約署名を確定する
+  example_issue: 既存symbol、caller、import graph、公開API、test、DI方式を確認できない
+  seen_in:
+  - run: 20260828T132910Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: 同じデータ型ではなく同じ意味・不変条件・変更理由を共有する場合だけ共通moduleへ置く。それ以外はalgorithm sliceへ置く
+  example_issue: '`features/interactions.py`の処理がiALS固有かalgorithm共通か判断できない'
+  seen_in:
+  - run: 20260828T132910Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: 保存媒体の操作とalgorithm固有artifact変換を分離し、前者だけをapplication側portにする
+  example_issue: '`repositories/model.py`が保存先とserializationのどこまでを担当しているか不明'
+  seen_in:
+  - run: 20260828T132910Z
+    task: localize-ml-algorithm-and-reuse-use-case
+    trial: 2
+    source: executor
+- general_fix_rule: 実移行前にtreeだけで判断せず、公開import、caller、state writer、外部依存、testをinventory化し、提案境界と照合する。
+  example_issue: 既存symbol、import graph、entrypoint、DI、DB model、test配置が不明。
+  seen_in:
+  - run: 20260828T132910Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 外部side effectを伴う状態遷移では、成功・拒否・一時失敗・結果不明・duplicateごとの状態と再試行責任を先に定義する。
+  example_issue: キャンセルと返金のtransaction・整合性要件が不明。
+  seen_in:
+  - run: 20260828T132910Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: variation pointは実際の選択タイミングに一つだけ置き、複数callerへprovider分岐を散らさない。
+  example_issue: 決済providerの選択単位が不明。
+  seen_in:
+  - run: 20260828T132910Z
+    task: split-flat-package
+    trial: 1
+    source: executor
+- general_fix_rule: 実コードが利用可能になったら、treeだけで判断せず、公開import、caller、composition root、test、設定注入を確認して移動表を確定します。
+  example_issue: 実際の20ファイルのsymbol、import graph、entrypoint、DIおよびテスト配置が不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 内部状態だけの不変条件はentityへ、外部情報を組み合わせる判断はapplication/domain policyへ置き、判断箇所を一つにします。
+  example_issue: キャンセル条件が注文内部の状態だけで決まるか、決済状態・時刻・配送状態など外部情報も必要か不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+- general_fix_rule: 外部side effectでは拒否、一時失敗、結果不明、重複をconsumerが必要とする粒度で契約化し、adapterでvendor表現を変換します。
+  example_issue: キャンセルに伴う決済取消・返金と、timeout後の整合性要件が不明です。
+  seen_in:
+  - run: 20260828T132910Z
+    task: split-flat-package
+    trial: 2
+    source: executor
+automated_runs:
+- id: 20260818T104647Z
+  mode: routing
+  model: default
+  results_dir: evals/results/20260818T104647Z
+  routing_summary:
+    isolated:
+      positive:
+        trials: 8
+        activation_rate: 1.0
+        pass_rate: 1.0
+      negative:
+        trials: 8
+        activation_rate: 0.0
+        pass_rate: 1.0
+      near-miss:
+        trials: 8
+        activation_rate: 0.75
+        pass_rate: 0.25
+    normal:
+      positive:
+        trials: 8
+        activation_rate: 0.0
+        pass_rate: 0.0
+      negative:
+        trials: 8
+        activation_rate: 0.0
+        pass_rate: 1.0
+      near-miss:
+        trials: 8
+        activation_rate: 0.0
+        pass_rate: 1.0
+  routing_gates:
+    isolated:
+      checks:
+        critical_positive_activation: true
+        positive_activation_rate: true
+        negative_false_activation_rate: true
+        near_miss_false_activation_rate: false
+        executor_processes: true
+      pass: false
+    normal:
+      checks:
+        critical_positive_activation: false
+        positive_activation_rate: false
+        negative_false_activation_rate: true
+        near_miss_false_activation_rate: true
+        executor_processes: true
+      pass: false
+  routing_trials:
+  - case: design-doc-system
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: true
+    verdict: fail
+    exit_code: 0
+  - case: design-doc-system
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: true
+    verdict: fail
+    exit_code: 0
+  - case: explain-pattern
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: true
+    verdict: fail
+    exit_code: 0
+  - case: explain-pattern
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: true
+    verdict: fail
+    exit_code: 0
+  - case: global-rule
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: global-rule
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: import-linter-only
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: true
+    verdict: fail
+    exit_code: 0
+  - case: import-linter-only
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: true
+    verdict: fail
+    exit_code: 0
+  - case: data-analysis
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: data-analysis
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: format-python
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: format-python
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: package-install
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: package-install
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: python-syntax
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: python-syntax
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: decide-protocol
+    kind: positive
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: decide-protocol
+    kind: positive
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: place-new-feature
+    kind: positive
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: place-new-feature
+    kind: positive
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: redesign-flat-package
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: redesign-flat-package
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: review-python-boundaries
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: review-python-boundaries
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: design-doc-system
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: design-doc-system
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-pattern
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-pattern
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: global-rule
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: global-rule
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: import-linter-only
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: import-linter-only
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: data-analysis
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: data-analysis
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: format-python
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: format-python
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: package-install
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: package-install
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: python-syntax
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: python-syntax
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: decide-protocol
+    kind: positive
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: false
+    verdict: fail
+    exit_code: 0
+  - case: decide-protocol
+    kind: positive
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: false
+    verdict: fail
+    exit_code: 0
+  - case: place-new-feature
+    kind: positive
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: false
+    verdict: fail
+    exit_code: 0
+  - case: place-new-feature
+    kind: positive
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: false
+    verdict: fail
+    exit_code: 0
+  - case: redesign-flat-package
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: false
+    verdict: fail
+    exit_code: 0
+  - case: redesign-flat-package
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: false
+    verdict: fail
+    exit_code: 0
+  - case: review-python-boundaries
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: false
+    verdict: fail
+    exit_code: 0
+  - case: review-python-boundaries
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: false
+    verdict: fail
+    exit_code: 0
+  behavior_trials: []
+- id: 20260818T115418Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260818T115418Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: preserve-framework-and-public-api
+    kind: edge
+    trial: 1
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/preserve-framework-and-public-api/trial-1/executor-output.json
+    events_path: behavior/preserve-framework-and-public-api/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: 実装対象となるPythonサービスの所在が不明です。
+      general_fix_rule: 既存コード、依存定義、テスト、リポジトリ指示ファイルを含むサービス一式を、明示された作業ディレクトリへ配置する必要があります。
+    - issue: 既存の未コミット変更のうち保護すべき対象を判別できません。
+      general_fix_rule: 対象リポジトリ内で`git status`と差分を確認できる状態にし、依頼と無関係な変更には触れず、重なる変更は差分を保ったまま局所編集します。
+    retry_count: 1
+    requirements:
+    - id: preserve-contract
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: Deliverable explicitly lists `from app import create_order` compatibility
+        implementation as uncompleted and says no files were inspected or edited.
+      general_fix_rule: Work against the actual writable repository, retain or add
+        the existing public-facade re-export, and verify `from app import create_order`
+        with an import smoke test.
+    - id: reuse-existing-injection
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor states that existing environment loading and DI could
+        not be inspected, and lists DI-preserving wiring as uncompleted.
+      general_fix_rule: Inspect the current configuration and DI entry points first,
+        then route the split modules through those exact mechanisms without introducing
+        duplicate settings or containers.
+    - id: protect-unrelated-changes
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: validate-boundary
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor explicitly lists the public-import smoke test, relevant
+        tests, lint, and type checks as uncompleted.
+      general_fix_rule: After implementing in the correct repository, run the public-import
+        smoke test, relevant behavioral tests, and all applicable repository-defined
+        lint, formatting, and type checks.
+    - id: avoid-framework-leak
+      critical: false
+      combined_verdict: unclear
+      text_verdict: pass
+      semantic_verdict: unclear
+      evidence: No decomposition was implemented or inspectable. The executor only
+        proposed a possible facade strategy and said responsibility analysis was uncompleted.
+      general_fix_rule: Inspect the existing architecture and split responsibilities
+        so domain decisions remain framework-independent while FastAPI DI and SQLAlchemy
+        operations stay at adapter/composition boundaries.
+  - task: preserve-framework-and-public-api
+    kind: edge
+    trial: 2
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/preserve-framework-and-public-api/trial-2/executor-output.json
+    events_path: behavior/preserve-framework-and-public-api/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: 実装対象のPythonサービスが見つからない
+      general_fix_rule: '`services.py`、`app/__init__.py`、設定・DI構成、関連テストを含むリポジトリをworkspaceへ配置してください。'
+    - issue: 変更を適用できない
+      general_fix_rule: 対象workspaceへの書込み権限を付与してください。
+    retry_count: 0
+    requirements:
+    - id: preserve-contract
+      critical: true
+      combined_verdict: unclear
+      text_verdict: pass
+      semantic_verdict: unclear
+      evidence: Deliverable states that no implementation or verification was performed
+        because the workspace was empty and read-only. The intended facade approach
+        is mentioned only in the phase trace.
+      general_fix_rule: Implement the split while retaining or re-exporting `create_order`
+        from `app`, then verify the exact public import in a test or smoke check.
+    - id: reuse-existing-injection
+      critical: true
+      combined_verdict: unclear
+      text_verdict: pass
+      semantic_verdict: unclear
+      evidence: The executor explicitly says the configuration and DI implementation
+        could not be inspected. The planning note describes intent but provides no
+        code-level evidence.
+      general_fix_rule: Inspect the existing configuration and DI composition points
+        first, then route the split services through those mechanisms without introducing
+        duplicate environment reads or a second injection model.
+    - id: protect-unrelated-changes
+      critical: true
+      combined_verdict: unclear
+      text_verdict: pass
+      semantic_verdict: unclear
+      evidence: The deliverable reports zero file changes, but does not provide observable
+        evidence of a dirty-worktree inspection or identify any specific pre-existing
+        changes.
+      general_fix_rule: Record the initial `git status` and relevant diffs, identify
+        pre-existing changes, and ensure the final diff touches only files required
+        for the service split.
+    - id: validate-boundary
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor explicitly lists the public import smoke test, related
+        tests, lint, and type checking as uncompleted.
+      general_fix_rule: Run a smoke test for `from app import create_order`, the relevant
+        behavioral tests, and all applicable repository-defined lint, formatting,
+        and type checks; report their concrete results.
+    - id: avoid-framework-leak
+      critical: false
+      combined_verdict: unclear
+      text_verdict: pass
+      semantic_verdict: unclear
+      evidence: The phase trace states an intention to separate business operations,
+        persistence, and external clients, but no decomposition or code was produced
+        for inspection.
+      general_fix_rule: Place business rules in framework-independent service/domain
+        code and keep FastAPI request wiring and SQLAlchemy persistence details in
+        existing adapters or boundary modules, then verify through code review and
+        tests.
+  - task: isolated-syntax-fix
+    kind: negative
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/isolated-syntax-fix/trial-1/executor-output.json
+    events_path: behavior/isolated-syntax-fix/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: 修正対象のPythonファイルとテストが不明です。
+      general_fix_rule: 対象プロジェクト一式を workspace に配置し、少なくとも修正対象ファイルと対応テストを参照可能にしてください。
+    - issue: ファイルを修正できません。
+      general_fix_rule: 対象workspaceへの書き込み権限を付与してください。
+    retry_count: 1
+    requirements:
+    - id: avoid-design-work
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: isolated-syntax-fix
+    kind: negative
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/isolated-syntax-fix/trial-2/executor-output.json
+    events_path: behavior/isolated-syntax-fix/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: 修正対象のPythonファイルとテストが不明です。
+      general_fix_rule: 対象ソースとテストをworkspaceへ配置し、書き込み可能な環境で再実行してください。
+    retry_count: 1
+    requirements:
+    - id: avoid-design-work
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: split-flat-package
+    kind: typical
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/split-flat-package/trial-1/executor-output.json
+    events_path: behavior/split-flat-package/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 現在の注文状態、不変条件、キャンセル可否の具体的な判定項目が不明。
+      general_fix_rule: 実装前に注文entity、状態writer、既存testを調べ、キャンセル規則のsemantic ownerとstate
+        authorityを確定する。
+    - issue: キャンセルと返金の整合性、timeout時の正しい最終状態が不明。
+      general_fix_rule: 外部side effectを伴う状態遷移では、成功、拒否、一時失敗、結果不明、重複要求を先に定義してから状態modelを決める。
+    - issue: 公開import、entrypoint、DI、ORM、alternate writerの有無が不明。
+      general_fix_rule: 移動前にentrypoint、composition root、公開API、永続化経路、admin・job・raw
+        SQLを調査し、互換性と不変条件を壊さない移行順を決める。
+    retry_count: 0
+    requirements:
+    - id: evidence-before-design
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: change-scenarios
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: concrete-boundaries
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: minimal-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: split-flat-package
+    kind: typical
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/split-flat-package/trial-2/executor-output.json
+    events_path: behavior/split-flat-package/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 実際のsymbol、import graph、entrypoint、DI、公開API、test配置が不明
+      general_fix_rule: 実装前に対象tree、caller、composition root、公開import、testを確認し、既存の組み立て方式と互換性を保つ
+    - issue: キャンセルと返金の実行順序および失敗時の状態が不明
+      general_fix_rule: 外部side effectを伴う状態遷移では、成功・拒否・一時失敗・結果不明・重複の状態とstate authorityを先に定義する
+    - issue: Order状態のalternate writerが不明
+      general_fix_rule: domain操作へ状態変更を集約する際は、全writerを列挙し、迂回経路を移行または明示的に制約する
+    retry_count: 0
+    requirements:
+    - id: evidence-before-design
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: change-scenarios
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: concrete-boundaries
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: minimal-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260818T120342Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260818T120342Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: split-flat-package
+    kind: typical
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/split-flat-package/trial-1/executor-output.json
+    events_path: behavior/split-flat-package/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 既存symbol、import graph、entrypoint、DI、test、ORM model、公開importを確認できない。
+      general_fix_rule: 実装前にrepositoryのtreeとsymbol/caller/state/依存一覧を採取し、提案上の移動先と互換shimを実コードに合わせて確定する。
+    - issue: キャンセルと返金の原子性、およびtimeout時の注文状態が未定義。
+      general_fix_rule: 外部side effectを伴う状態遷移では、成功・拒否・一時失敗・結果不明・重複の各状態とstate authorityを実装前に定義する。
+    - issue: '`PaymentGateway`がchargeとrefundの両方を持つべきか分割すべきか未確定。'
+      general_fix_rule: consumerが必要とする最小操作から契約を定義し、lifecycleや実装が同じ場合は統合、独立して交換・利用される場合だけ分割する。
+    retry_count: 0
+    requirements:
+    - id: evidence-before-design
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: change-scenarios
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: concrete-boundaries
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: minimal-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: split-flat-package
+    kind: typical
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/split-flat-package/trial-2/executor-output.json
+    events_path: behavior/split-flat-package/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 実際のsymbol、import graph、循環依存、公開APIが不明。
+      general_fix_rule: 設計確定前に実コードのtree、import、entrypoint、`__init__.py`、testを確認し、移動単位と互換shimをsymbol単位で決める。
+    - issue: キャンセル時の返金失敗・timeout・結果不明における注文状態が不明。
+      general_fix_rule: 外部side effectを伴う状態遷移では、成功、拒否、一時失敗、結果不明、retryの各状態とstate authorityを先に定義する。
+    - issue: providerを何に基づいて選択するか不明。
+      general_fix_rule: variation pointの実際の選択軸を確認し、分岐をcomposition rootまたは一つのresolverへ閉じ込める。
+    retry_count: 1
+    requirements:
+    - id: evidence-before-design
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: change-scenarios
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: concrete-boundaries
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: minimal-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260818T120557Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260818T120557Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: preserve-framework-and-public-api
+    kind: edge
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/preserve-framework-and-public-api/trial-1/executor-output.json
+    events_path: behavior/preserve-framework-and-public-api/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: '`create_order`と`calculate_total`の正確なsignature・返値・例外'
+      general_fix_rule: 移行前に既存testと公開signatureを記録し、移動中は契約を変更しない
+    - issue: SQLAlchemy transactionの所有者
+      general_fix_rule: '`commit`、`flush`、`rollback`の境界を移行前後で固定し、構造変更とtransaction変更を同時に行わない'
+    - issue: '`calculate_total`が外部から直接importされているか'
+      general_fix_rule: 移行前にsymbol参照を全検索し、公開consumerがあれば互換re-exportを残す
+    retry_count: 1
+    requirements:
+    - id: preserve-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: reuse-existing-injection
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: protect-unrelated-changes
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: validate-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: avoid-framework-leak
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: preserve-framework-and-public-api
+    kind: edge
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/preserve-framework-and-public-api/trial-2/executor-output.json
+    events_path: behavior/preserve-framework-and-public-api/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: create_orderの正確なsignature、戻り値、例外契約が未確認
+      general_fix_rule: 移動前に公開関数のsignatureとobservable behaviorをcharacterization testで固定し、分割では変更しない。
+    - issue: SQLAlchemy transactionのownerが未確認
+      general_fix_rule: 既存のtransaction境界をそのまま移し、分割とtransaction設計変更を同時に行わない。
+    - issue: app.servicesを直接importする利用者の有無が未確認
+      general_fix_rule: 削除前に全利用箇所を検索し、互換性を確認できなければ旧モジュールを薄い再export shimとして残す。
+    retry_count: 0
+    requirements:
+    - id: preserve-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: reuse-existing-injection
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: protect-unrelated-changes
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: validate-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: avoid-framework-leak
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: isolated-syntax-fix
+    kind: negative
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/isolated-syntax-fix/trial-1/executor-output.json
+    events_path: behavior/isolated-syntax-fix/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: 修正対象のfunctionとtestを特定できない
+      general_fix_rule: 対象のPythonコードとtestをworkspaceへ配置し、書き込み可能な環境で再実行する
+    retry_count: 1
+    requirements:
+    - id: avoid-design-work
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: isolated-syntax-fix
+    kind: negative
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/isolated-syntax-fix/trial-2/executor-output.json
+    events_path: behavior/isolated-syntax-fix/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: 修正対象のfunctionとtestを特定できない
+      general_fix_rule: 対象repositoryまたは必要なソースとtestをrunner workspaceへ配置してから実行します。
+    retry_count: 1
+    requirements:
+    - id: avoid-design-work
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: split-flat-package
+    kind: typical
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/split-flat-package/trial-1/executor-output.json
+    events_path: behavior/split-flat-package/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 現行symbol、caller、import graph、entrypoint、DI方式、公開API、test配置が未確認です。
+      general_fix_rule: 実repositoryではtreeだけで判断せず、entrypoint、import、composition root、public
+        import、test、永続化writerを調査してからsymbol単位の移動先を確定します。
+    - issue: 返金失敗・timeout時に注文状態をどう扱うかが未確定です。
+      general_fix_rule: 明確な拒否、一時失敗、結果不明、重複実行を分け、各場合の注文状態、再試行、idempotency、source of
+        truthを業務ownerと決定します。
+    - issue: 注文状態を書き換えるalternate writerの有無が不明です。
+      general_fix_rule: 通常のservice以外の全writerを列挙し、キャンセル不変条件を迂回する経路を閉じるか明示的に統制します。
+    retry_count: 1
+    requirements:
+    - id: evidence-before-design
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: change-scenarios
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: concrete-boundaries
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: minimal-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: split-flat-package
+    kind: typical
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/split-flat-package/trial-2/executor-output.json
+    events_path: behavior/split-flat-package/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 実際のimport graph、entrypoint、DI、公開API、test配置が不明。
+      general_fix_rule: 実装前にtreeだけでなくentrypoint、composition root、公開import、testおよびimport
+        graphを確認し、境界を補正する。
+    - issue: キャンセル時に返金を先に行うか、注文状態を先に変更するかが不明。
+      general_fix_rule: 外部side effectを伴う状態遷移では、timeout・結果不明・retryを含む状態表と処理順序を決めてからuse
+        case境界を確定する。
+    - issue: 注文状態を変更できる全経路が不明。
+      general_fix_rule: 不変条件をdomainへ集約する際は、通常経路以外のwriterも列挙し、迂回更新を禁止または検証する。
+    retry_count: 0
+    requirements:
+    - id: evidence-before-design
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: change-scenarios
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: concrete-boundaries
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: minimal-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260819T045635Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260819T045635Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: holdout-library-flat-layout
+    kind: holdout
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/holdout-library-flat-layout/trial-1/executor-output.json
+    events_path: behavior/holdout-library-flat-layout/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 現行各モジュールの実際の責務と import graph
+      general_fix_rule: 実リポジトリでは tree だけで判断せず、各 symbol の caller、循環 import、依存注入箇所を確認してから境界を確定する。
+    - issue: 既存の公開 API と `package.auth` から直接 import されている symbol
+      general_fix_rule: 再配置前に documented import と consumer test を調査し、package facade
+        から互換 symbol を再公開する。
+    - issue: 予定される OAuth の具体的範囲
+      general_fix_rule: OAuth の状態・不変条件・外部通信・failure contract を確認し、単純な認証適用なら単一module、独立した複数責務があれば
+        auth subpackage とする。
+    - issue: 認証情報を request と transport のどちらで適用しているか
+      general_fix_rule: 認証方式の選択とtoken lifecycleは auth側に局所化し、request表現やtransportへ方式固有分岐を分散させない。
+    retry_count: 0
+    requirements:
+    - id: allow-flat-result
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: oauth-variation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-implementation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: holdout-library-flat-layout
+    kind: holdout
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/holdout-library-flat-layout/trial-2/executor-output.json
+    events_path: behavior/holdout-library-flat-layout/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 既存`auth.py`が所有する認証方式、状態、外部依存、公開symbolが不明。
+      general_fix_rule: 実コードでは`auth.py`のsymbol、caller、状態、import、公開経路を確認し、OAuthと異なる変更理由が実在する場合だけ分割する。
+    - issue: OAuthが静的token付与だけか、取得・refresh・期限管理まで含むか不明。
+      general_fix_rule: 独立した状態、外部認可server、refresh、固有failureのいずれかを持つ場合は専用moduleへ分離し、単純なheader付与なら現状維持を優先する。
+    - issue: 現在のpublic import pathが不明。
+      general_fix_rule: 内部再編時は既存の公開symbolをfacadeから再公開し、consumer向けimport smoke testで互換性を確認する。
+    retry_count: 0
+    requirements:
+    - id: allow-flat-result
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: oauth-variation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-implementation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260819T045814Z
+  mode: routing
+  model: default
+  results_dir: evals/results/20260819T045814Z
+  routing_summary:
+    isolated:
+      positive:
+        trials: 8
+        activation_rate: 1.0
+        pass_rate: 1.0
+      negative:
+        trials: 8
+        activation_rate: 0.0
+        pass_rate: 1.0
+      near-miss:
+        trials: 8
+        activation_rate: 0.0
+        pass_rate: 1.0
+    normal:
+      positive:
+        trials: 8
+        activation_rate: 1.0
+        pass_rate: 1.0
+      negative:
+        trials: 8
+        activation_rate: 0.0
+        pass_rate: 1.0
+      near-miss:
+        trials: 8
+        activation_rate: 0.0
+        pass_rate: 1.0
+  routing_gates:
+    isolated:
+      checks:
+        critical_positive_activation: true
+        positive_activation_rate: true
+        negative_false_activation_rate: true
+        near_miss_false_activation_rate: true
+        executor_processes: true
+      pass: true
+    normal:
+      checks:
+        critical_positive_activation: true
+        positive_activation_rate: true
+        negative_false_activation_rate: true
+        near_miss_false_activation_rate: true
+        executor_processes: true
+      pass: true
+  routing_trials:
+  - case: design-doc-system
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: design-doc-system
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-pattern
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-pattern
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: global-rule
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: global-rule
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: import-linter-only
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: import-linter-only
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: data-analysis
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: data-analysis
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: format-python
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: format-python
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: package-install
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: package-install
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: python-syntax
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: python-syntax
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: decide-protocol
+    kind: positive
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: decide-protocol
+    kind: positive
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: place-new-feature
+    kind: positive
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: place-new-feature
+    kind: positive
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: redesign-flat-package
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: redesign-flat-package
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: review-python-boundaries
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: review-python-boundaries
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: design-doc-system
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: design-doc-system
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-pattern
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-pattern
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: global-rule
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: global-rule
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: import-linter-only
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: import-linter-only
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: data-analysis
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: data-analysis
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: format-python
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: format-python
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: package-install
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: package-install
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: python-syntax
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: python-syntax
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: decide-protocol
+    kind: positive
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: decide-protocol
+    kind: positive
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: place-new-feature
+    kind: positive
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: place-new-feature
+    kind: positive
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: redesign-flat-package
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: redesign-flat-package
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: review-python-boundaries
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: review-python-boundaries
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  behavior_trials: []
+- id: 20260828T132215Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260828T132215Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_summary:
+    with_skill:
+      trials: 2
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      average_duration_ms: 119477.0
+      average_tool_uses: 2.5
+  baseline_delta: {}
+  behavior_trials:
+  - task: localize-ml-algorithm-and-reuse-use-case
+    kind: typical
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-1/executor-output.json
+    events_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 136667
+    executor_tool_uses: 3
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 対象fileの具体的なsymbol、import関係、公開APIが確認できない
+      general_fix_rule: 実repositoryでentrypoint、caller、tests、設定注入、公開importを確認し、提案した境界を既存命名とDI方式へ合わせる
+    - issue: Popularityが学習済みartifactを必要とするか不明
+      general_fix_rule: 全algorithmに一律のclass階層を課さず、consumerが共通して必要とする操作だけを契約化する
+    - issue: interactionデータのどこまでがalgorithm共通か不明
+      general_fix_rule: 共通の業務的interaction表現だけをcontractに置き、重み付け、疎行列化、欠損処理などalgorithm固有変換は各variantへ残す
+    - issue: model artifactの保存先と互換性要件が不明
+      general_fix_rule: 保存portとalgorithm固有serializationを分離し、既存artifactを継続利用する場合はversion付き互換性testを先に追加する
+    retry_count: 0
+    requirements:
+    - id: variant-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: use-case-reuse
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: orchestrator-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: addition-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: proportionate-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: localize-ml-algorithm-and-reuse-use-case
+    kind: typical
+    config: with_skill
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-2/executor-output.json
+    events_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-2/executor-events.jsonl
+    executor_duration_ms: 102287
+    executor_tool_uses: 2
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 現在の学習処理の正確なinput、result、side effect、failureが不明。
+      general_fix_rule: 実装前にNotebook、CLI、KFP Componentのcallerとtestを読み、三経路に共通するconsumer契約からuse
+        case I/Oを確定する。
+    - issue: model artifactの保存先、schema、versioning、writerが不明。
+      general_fix_rule: artifactのsemantic ownerと唯一のwriterを特定し、algorithm固有serializationと保存媒体adapterを分離する。
+    - issue: Popularityが学習や永続artifactを必要とするか不明。
+      general_fix_rule: 全algorithmへ同一lifecycleを強制せず、候補生成と学習の契約を分離し、必要な契約だけ実装させる。
+    retry_count: 0
+    requirements:
+    - id: variant-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: use-case-reuse
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: orchestrator-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: addition-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: proportionate-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260828T132459Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260828T132459Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_summary:
+    with_skill:
+      trials: 2
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      average_duration_ms: 109756.0
+      average_tool_uses: 3.5
+    without_skill:
+      trials: 2
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      average_duration_ms: 67915.5
+      average_tool_uses: 2.0
+  baseline_delta:
+    task_pass_rate: 0.0
+    requirement_pass_rate: 0.0
+    average_duration_ms: 41840.5
+    average_tool_uses: 1.5
+  behavior_trials:
+  - task: localize-ml-algorithm-and-reuse-use-case
+    kind: typical
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-1/executor-output.json
+    events_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 110808
+    executor_tool_uses: 3
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 対象ソースとtestの実装詳細を確認できません。
+      general_fix_rule: 実repositoryでentrypoint、import graph、公開API、設定注入、artifact保存、testを確認し、module名と境界を既存用語へ合わせます。
+    - issue: '`repositories/model.py`を丸ごとiALSへ移すべきか確定できません。'
+      general_fix_rule: artifactの意味・形式はalgorithm側、保存媒体と外部SDK変換はadapter側へ置き、実際の責務単位で分割します。
+    - issue: Popularityが学習契約を必要とするか不明です。
+      general_fix_rule: 能力差を空実装で隠さず、consumerが本当に共有する最小操作だけを契約化します。
+    - issue: 既存artifactの後方互換要件が不明です。
+      general_fix_rule: 形式変更前にversion識別、読込み互換性、rollback期間を決め、round-tripまたは拒否契約をtestします。
+    retry_count: 0
+    requirements:
+    - id: variant-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: use-case-reuse
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: orchestrator-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: addition-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: proportionate-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: localize-ml-algorithm-and-reuse-use-case
+    kind: typical
+    config: with_skill
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-2/executor-output.json
+    events_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-2/executor-events.jsonl
+    executor_duration_ms: 108704
+    executor_tool_uses: 4
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: interaction生成のうち、推薦全体で共通の処理とiALS固有処理の境界が不明です。
+      general_fix_rule: 名前や現在のdirectoryではなく、algorithm変更と一緒に変わる意味・不変条件で所有先を決めます。iALSのconfidenceやmatrix表現はiALSへ、algorithm非依存のcanonical
+        interaction schemaだけを共有側へ残します。
+    - issue: model repositoryが保存先adapterなのか、iALS serializationも所有しているのか不明です。
+      general_fix_rule: 保存先SDK・I/Oはinfrastructure adapterが所有し、algorithm固有のencode/decodeはvariantが所有します。境界ではapplication上のartifact/metadata契約を使います。
+    - issue: Popularityにも学習use caseとartifact保存が必要か不明です。
+      general_fix_rule: 共通契約へ無理に合わせず、consumerが同じ目的で交換する操作だけを契約化します。状態を持たないPopularityなら小さなmoduleまたはcallableで十分です。
+    retry_count: 0
+    requirements:
+    - id: variant-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: use-case-reuse
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: orchestrator-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: addition-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: proportionate-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: localize-ml-algorithm-and-reuse-use-case
+    kind: typical
+    config: without_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/localize-ml-algorithm-and-reuse-use-case/without_skill/trial-1/executor-output.json
+    events_path: behavior/localize-ml-algorithm-and-reuse-use-case/without_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 71576
+    executor_tool_uses: 2
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 実際のクラス、関数、import依存関係を確認できない
+      general_fix_rule: 対象ソースが利用可能なら、提案前に呼び出しグラフとalgorithm固有分岐を確認し、既存の公開APIを保てる境界へ調整する
+    - issue: 学習データ読み込みと評価処理の既存責務が不明
+      general_fix_rule: I/O差分はadapter、algorithm非依存の手順はuse case、数式・特徴変換はalgorithm packageへ分類する
+    - issue: モデル保存先とartifact形式が不明
+      general_fix_rule: 保存媒体はport/adapterで抽象化し、algorithm固有のserialization schemaと互換性versionはalgorithm側に所有させる
+    retry_count: 1
+    requirements:
+    - id: variant-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: use-case-reuse
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: orchestrator-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: addition-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: proportionate-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: localize-ml-algorithm-and-reuse-use-case
+    kind: typical
+    config: without_skill
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/localize-ml-algorithm-and-reuse-use-case/without_skill/trial-2/executor-output.json
+    events_path: behavior/localize-ml-algorithm-and-reuse-use-case/without_skill/trial-2/executor-events.jsonl
+    executor_duration_ms: 64255
+    executor_tool_uses: 2
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 対象のPythonファイルを直接確認できませんでした。
+      general_fix_rule: 実コードが利用可能な場合は、import関係、公開API、データ型、永続化方式を確認してからmodule境界を確定する。
+    - issue: 学習データ取得とモデル保存先の具体的な方式が不明です。
+      general_fix_rule: 外部I/Oはportとしてユースケースへ注入し、アルゴリズムpackageには持ち込まない。
+    retry_count: 0
+    requirements:
+    - id: variant-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: use-case-reuse
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: orchestrator-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: addition-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: proportionate-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260828T132910Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260828T132910Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_summary:
+    with_skill:
+      trials: 10
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      average_duration_ms: 86800.4
+      average_tool_uses: 3.4
+  baseline_delta: {}
+  behavior_trials:
+  - task: preserve-framework-and-public-api
+    kind: edge
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/preserve-framework-and-public-api/with_skill/trial-1/executor-output.json
+    events_path: behavior/preserve-framework-and-public-api/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 88062
+    executor_tool_uses: 2
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: '`create_order`、`calculate_total`、保存処理の正確なsignatureと同期・非同期方式'
+      general_fix_rule: 移動前に既存signature、戻り値、例外、async属性をcharacterization testで固定し、移動では一切変更しません。
+    - issue: transactionの所有者とcommit/rollback境界
+      general_fix_rule: 既存のcommit、flush、refresh、rollback、例外伝播の順序を保存関数へそのまま移し、リファクタリングとtransaction設計変更を同時に行いません。
+    - issue: '`app.services.calculate_total`を直接利用する内部・外部consumerの有無'
+      general_fix_rule: 移行前に全repositoryのimportを検索し、利用があれば互換facadeから一時的に再公開して段階的に移行します。
+    retry_count: 1
+    requirements:
+    - id: preserve-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: reuse-existing-injection
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: protect-unrelated-changes
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: validate-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: avoid-framework-leak
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: preserve-framework-and-public-api
+    kind: edge
+    config: with_skill
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/preserve-framework-and-public-api/with_skill/trial-2/executor-output.json
+    events_path: behavior/preserve-framework-and-public-api/with_skill/trial-2/executor-events.jsonl
+    executor_duration_ms: 107449
+    executor_tool_uses: 2
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 現行の関数署名、戻り値、例外、およびSQLAlchemy transaction境界の詳細が未提示。
+      general_fix_rule: 移行前に現行コードとtestから観察可能な契約を記録し、責務移動では契約とtransaction ownershipを変更しない。
+    - issue: '`calculate_total`や`app.services.create_order`を直接importする内部consumerの有無が未確認。'
+      general_fix_rule: 移動前にrepository全体のimportを検索し、既存consumerがあるsymbolには段階移行用re-exportを残す。
+    - issue: 価格計算がSettingsを必要とするか不明。
+      general_fix_rule: 必要ならSettings値を`calculate_total`の明示的な引数として既存`create_order`から渡し、価格module自身に環境変数やFastAPI
+        DIを参照させない。
+    retry_count: 0
+    requirements:
+    - id: preserve-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: reuse-existing-injection
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: protect-unrelated-changes
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: validate-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: avoid-framework-leak
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: holdout-library-flat-layout
+    kind: holdout
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/holdout-library-flat-layout/with_skill/trial-1/executor-output.json
+    events_path: behavior/holdout-library-flat-layout/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 86699
+    executor_tool_uses: 10
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 既存の認証方式と`auth.py`の内部責務が不明です。
+      general_fix_rule: '`auth.py`のsymbol、保持状態、caller、外部SDK依存を確認し、OAuthとの共通契約と固有責務を識別してから最終的な分割単位を決めます。'
+    - issue: 現在の公開import面が不明です。
+      general_fix_rule: 内部moduleを移動する前に公開symbolとimport pathを特定し、package facade経由の互換性を維持します。
+    - issue: OAuth方式のtoken lifecycleが不明です。
+      general_fix_rule: token取得・refresh・保存が独立して変更またはtestされる責務になった時点で、認証subpackageへの昇格を再評価します。
+    retry_count: 0
+    requirements:
+    - id: allow-flat-result
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: oauth-variation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-implementation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: holdout-library-flat-layout
+    kind: holdout
+    config: with_skill
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/holdout-library-flat-layout/with_skill/trial-2/executor-output.json
+    events_path: behavior/holdout-library-flat-layout/with_skill/trial-2/executor-events.jsonl
+    executor_duration_ms: 67100
+    executor_tool_uses: 2
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 既存`auth.py`が所有する認証方式、状態、公開symbolが不明です。
+      general_fix_rule: 分割前にsymbol、caller、保持状態、外部依存、変更理由を確認し、独立した認証variantが実在するときだけsubpackageへ昇格します。
+    - issue: OAuthがtoken取得・更新・期限管理を必要とする方式か、静的token付与だけか不明です。
+      general_fix_rule: 認証方式固有の状態と変更理由が存在する場合は専用moduleへ閉じ、単純な同種処理なら既存moduleを維持します。
+    - issue: 現在の公開import経路と認証注入契約が不明です。
+      general_fix_rule: 内部移動前にconsumer importを調査し、facadeから再公開して互換性を保ちます。既存の注入方式があれば再利用します。
+    retry_count: 0
+    requirements:
+    - id: allow-flat-result
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: oauth-variation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-implementation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: isolated-syntax-fix
+    kind: negative
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/isolated-syntax-fix/with_skill/trial-1/executor-output.json
+    events_path: behavior/isolated-syntax-fix/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 44255
+    executor_tool_uses: 3
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: 修正対象の Python ファイルとテストが見つからない
+      general_fix_rule: 対象ソースとテストを workspace に配置し、書き込み可能な環境で再実行してください。
+    retry_count: 0
+    requirements:
+    - id: avoid-design-work
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: isolated-syntax-fix
+    kind: negative
+    config: with_skill
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/isolated-syntax-fix/with_skill/trial-2/executor-output.json
+    events_path: behavior/isolated-syntax-fix/with_skill/trial-2/executor-events.jsonl
+    executor_duration_ms: 35273
+    executor_tool_uses: 3
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: 修正対象の Python ファイルとテストが見つからない
+      general_fix_rule: 対象コードとテストを workspace に配置し、書き込み可能な環境で再実行してください。
+    retry_count: 0
+    requirements:
+    - id: avoid-design-work
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: localize-ml-algorithm-and-reuse-use-case
+    kind: typical
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-1/executor-output.json
+    events_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 100630
+    executor_tool_uses: 2
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 実際のclass・function・import graphを特定できない
+      general_fix_rule: 実装前に実repositoryのcaller、公開import、test、設定注入経路を確認し、提案moduleへsymbol単位で割り当てる
+    - issue: 現在のmodel artifact形式と保存先の責務境界が不明
+      general_fix_rule: serializationはalgorithm、transportと永続化はstore adapterに置き、既存consumerとの互換testで境界を確定する
+    - issue: Popularityが学習artifactを必要とするか不明
+      general_fix_rule: 全algorithmへ不要なfit状態を強制せず、consumerが本当に共通利用する最小契約へ分ける
+    retry_count: 0
+    requirements:
+    - id: variant-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: use-case-reuse
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: orchestrator-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: addition-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: proportionate-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: localize-ml-algorithm-and-reuse-use-case
+    kind: typical
+    config: with_skill
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-2/executor-output.json
+    events_path: behavior/localize-ml-algorithm-and-reuse-use-case/with_skill/trial-2/executor-events.jsonl
+    executor_duration_ms: 144737
+    executor_tool_uses: 5
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 既存symbol、caller、import graph、公開API、test、DI方式を確認できない
+      general_fix_rule: 実repositoryではentrypoint、caller、test、設定注入、公開importを確認し、互換性を保つ移動単位と契約署名を確定する
+    - issue: '`features/interactions.py`の処理がiALS固有かalgorithm共通か判断できない'
+      general_fix_rule: 同じデータ型ではなく同じ意味・不変条件・変更理由を共有する場合だけ共通moduleへ置く。それ以外はalgorithm
+        sliceへ置く
+    - issue: '`repositories/model.py`が保存先とserializationのどこまでを担当しているか不明'
+      general_fix_rule: 保存媒体の操作とalgorithm固有artifact変換を分離し、前者だけをapplication側portにする
+    retry_count: 1
+    requirements:
+    - id: variant-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: use-case-reuse
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: orchestrator-boundary
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: addition-locality
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: proportionate-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+  - task: split-flat-package
+    kind: typical
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/split-flat-package/with_skill/trial-1/executor-output.json
+    events_path: behavior/split-flat-package/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 103229
+    executor_tool_uses: 3
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 既存symbol、import graph、entrypoint、DI、DB model、test配置が不明。
+      general_fix_rule: 実移行前にtreeだけで判断せず、公開import、caller、state writer、外部依存、testをinventory化し、提案境界と照合する。
+    - issue: キャンセルと返金のtransaction・整合性要件が不明。
+      general_fix_rule: 外部side effectを伴う状態遷移では、成功・拒否・一時失敗・結果不明・duplicateごとの状態と再試行責任を先に定義する。
+    - issue: 決済providerの選択単位が不明。
+      general_fix_rule: variation pointは実際の選択タイミングに一つだけ置き、複数callerへprovider分岐を散らさない。
+    retry_count: 1
+    requirements:
+    - id: evidence-before-design
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: change-scenarios
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: concrete-boundaries
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: minimal-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: split-flat-package
+    kind: typical
+    config: with_skill
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/split-flat-package/with_skill/trial-2/executor-output.json
+    events_path: behavior/split-flat-package/with_skill/trial-2/executor-events.jsonl
+    executor_duration_ms: 90570
+    executor_tool_uses: 2
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: 実際の20ファイルのsymbol、import graph、entrypoint、DIおよびテスト配置が不明です。
+      general_fix_rule: 実コードが利用可能になったら、treeだけで判断せず、公開import、caller、composition root、test、設定注入を確認して移動表を確定します。
+    - issue: キャンセル条件が注文内部の状態だけで決まるか、決済状態・時刻・配送状態など外部情報も必要か不明です。
+      general_fix_rule: 内部状態だけの不変条件はentityへ、外部情報を組み合わせる判断はapplication/domain policyへ置き、判断箇所を一つにします。
+    - issue: キャンセルに伴う決済取消・返金と、timeout後の整合性要件が不明です。
+      general_fix_rule: 外部side effectでは拒否、一時失敗、結果不明、重複をconsumerが必要とする粒度で契約化し、adapterでvendor表現を変換します。
+    retry_count: 0
+    requirements:
+    - id: evidence-before-design
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: change-scenarios
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: concrete-boundaries
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: no-edit
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: minimal-abstraction
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+final:
+  status: pass
+  tier: deep
+  unrun_checks:
+  - descriptionは変更していないため、2026-08-28のrouting smoke testは再実行していない。既存のisolated/normal clear runを有効な証拠として保持した。
+  evidence:
+    static_validation:
+      system_quick_validate: pass
+      bundled_validate_skill: pass
+    automatic_routing:
+      first_clear_run: 20260818T114211Z
+      second_clear_run: 20260819T045814Z
+      trials_per_run: 48
+      isolated_profile: pass
+      normal_profile: pass
+      positive_activation_rate: 1.0
+      negative_false_activation_rate: 0.0
+      near_miss_false_activation_rate: 0.0
+    paired_behavioral_evaluation:
+      first_clear_run: 20260828T132215Z
+      second_clear_run: 20260828T132459Z
+      final_regression: 20260828T132910Z
+      fixed_scenarios: typical, edge, negative, ml-vertical-slice
+      trials_per_scenario: 2
+      critical_failures: 0
+      deterministic_unclear_points: 0
+    holdout:
+      run: 20260828T132910Z
+      trials: 2
+      critical_failures: 0
+      deterministic_unclear_points: 0
+    baseline:
+      executor: fresh agents without target skill access
+      scenarios: ml-vertical-slice
+      result: comparable
+      concrete_skill_value: 変更先・非波及先、未確認事項、固定templateを避ける再検討条件を反復可能なworkflowとして保持する。
+  limitations:
+  - Behavior scenarios use confirmed inline constraints or hypothetical project inputs;
+    they validate decision workflow but not edits in a real downstream repository.
+  - Baseline agents also produced strong designs; the measured benefit is repeatable
+    process and routing, not exclusive answer capability.
+
+# Earlier final/evidence records above describe their historical revisions only.
+behavioral_updates:
+- id: falsification-self-review-20261009
+  classification: behavioral-update
+  source_context: Falsification-based Python design review proposal.
+  source_commit: c14cb8a03a16e21bb6d327e5c7c3698e9686da8d
+  status: pending-independent-evaluation
+  mechanism: extend-existing-skill
+  rationale: The existing Python code-design trigger and output contract already cover this work; add design falsification within that workflow rather than a duplicate skill or a mandatory architecture rule.
+  user_problem: Local change scenarios can ratify a candidate whose concepts, responsibility ownership or transitive dependencies are wrong.
+  intended_deliverable: Evidence-linked candidate falsification, minimal revision and same-rubric re-evaluation before a design recommendation, while preserving public API, DI and read-only boundaries.
+  inputs: Repository or explicitly supplied hypothetical facts, use cases, entrypoints, state, effects, contracts, dependency constraints and a candidate design.
+  outputs: Existing design deliverable plus ten-dimension verdicts, counterfactuals for every new boundary, entrypoint dependency traces and unresolved-evidence limits.
+  constraints:
+  - No mandatory layers, Protocols, DDD or domain-specific template.
+  - Missing evidence stays provisional and does not become Pass or N/A.
+  - Preserve all existing regression cases, task and requirement IDs, routing description and historical evidence.
+  - Source-only change; no runtime skill installation, downstream edits, runner replacement, model API or credentials.
+  external_side_effects: None during evaluation; candidate files and isolated trial artifacts only.
+  risk_assessment:
+    incorrect_deliverable: False confidence in a design can preserve duplicate state authority or leak optional dependencies into runtime-critical entrypoints.
+    authority_and_reversibility: Source documentation and evaluation cases are reversible; downstream project mutation remains governed by the requested mode.
+    operational_reliance: Design recommendations and read-only reviews may guide implementation decisions.
+    distribution: Existing personal repository skill.
+    tier: deep
+  critical_requirements:
+  - candidate-falsification-revision-same-rubric
+  - all-ten-evidence-linked-verdicts
+  - every-new-boundary-merge-delete
+  - each-entrypoint-transitive-dependency-trace
+  - missing-facts-stay-provisional
+  - small-cohesive-layout-not-overengineered
+  - preserve-original-output-contract-and-authority
+  fixed_cases_added:
+  - falsify-local-but-invalid-candidate
+  - retain-cohesive-small-design
+  - keep-missing-evidence-provisional
+  required_gates:
+  - At least two independent trials per critical behavior scenario.
+  - Representative paired no-skill comparison with identical raw inputs and separate grading.
+  - Two consecutive clear behavior rounds after the last behavior edit.
+  - Final regression and holdout kept out of the edit loop.
+  routing: Description and installation environment are unchanged; retain historical routing evidence without claiming a new routing run.
+  observed_checks:
+  - System quick_validate.py passed on the repository candidate.
+  - Existing bundled validate_skill.py passed on the repository candidate.
+  - git diff --check passed.
+  unrun_checks:
+  - Independent behavioral evaluation, baseline comparison, convergence, final regression and untouched holdout are pending.
+  limitations:
+  - Structural checks do not establish behavioral success or installation.
+  - Prior historical pass records do not validate this revision.
+
+behavioral_update_iterations:
+- id: falsification-self-review-v1-missing-evidence
+  update: falsification-self-review-20261009
+  revision: candidate-v1
+  candidate_sha256: 65572d28bd6854b8365b05f60c1b13f8e6e548263dc3108ae9eba41991d70540
+  scenario: keep-missing-evidence-provisional
+  configuration: with_skill
+  trial: 1
+  result: failed
+  failed_requirement: no-false-pass
+  failure_classification: instruction-contract-ambiguity
+  observed_evidence: The final rubric kept nine dimensions at Revise, but marked Evidence as Pass within the supplied scope because facts and unknowns were honestly separated. The overall design correctly remained provisional; the failure concerns the Evidence verdict, not a claim that the whole design was verified.
+  results_dir_scope: external
+  results_dir: null
+  output_path: r1-keep-missing-evidence-provisional-t1/deliverable.md
+  output_sha256: df84a6607a04009e2dfc6309178328b48697681c512d07a783c2541318261baa
+  evidence_lines: 149-162
+  change: Clarify that Evidence judges sufficient factual support for the scoped design, not disclosure alone. Material unknowns remain Revise; complete explicit hypothetical inputs remain valid evidence within their stated scope.
+  unchanged: Preserve the original scenario and critical grading rubric; do not relabel the observed failure as success.
+  next_result: Pending fresh v2 affected-case trials, two consecutive clear behavior rounds, final regression and untouched holdout.
+
+behavioral_update_completion:
+  update: falsification-self-review-20261009
+  revision: candidate-v2
+  completed_at: '2026-10-09T06:00:20.665675+00:00'
+  status: pass
+  tier: deep
+  supersedes_status: The pending evaluation states above remain historical; this completion applies only to the evaluated v2 runtime.
+  evaluated_package_sha256: 88404f9700a96b64bad6702493ff0af350bc25b14dc442e06952e38f446db32c
+  evaluated_runtime_sha256: c570335812c2b87a06b2e959d01aa5ccafa867c18e572ac6858b726419015f3c
+  runtime_hash_scope: SKILL.md, agents metadata and references; excludes evals/ so appending evidence does not alter the evaluated runtime.
+  evidence_summary: evals/evidence/falsification-20261009-summary.md
+  evidence_manifest: evals/evidence/falsification-20261009-manifest.json
+  actual_completed_trials: 57
+  v2_trials: 50
+  v2_critical_successes: 50
+  v2_requirements_passed: 240
+  v2_requirements_total: 240
+  clear_rounds:
+  - round: 1
+    trials: 22
+    critical_successes: 22
+    requirements_passed: 106
+    requirements_total: 106
+  - round: 2
+    trials: 22
+    critical_successes: 22
+    requirements_passed: 106
+    requirements_total: 106
+  final_regression:
+    scenario: falsify-local-but-invalid-candidate
+    trials: 2
+    critical_successes: 2
+    requirements_passed: 10
+    requirements_total: 10
+  holdouts:
+  - scenario: holdout-library-flat-layout
+    trials: 2
+    critical_successes: 2
+    requirements_passed: 6
+    requirements_total: 6
+  - scenario: holdout-plan-alias-authority
+    trials: 2
+    critical_successes: 2
+    requirements_passed: 12
+    requirements_total: 12
+    locked_specification_sha256: 24f65e60b2fd1da37894e97adca2dcd3be1e1f46ac92624451b63ce2cc7c4c8c
+  holdout_integrity: Both were first dispatched after two clear rounds and final regression; the independent scenario was withheld from the writer throughout iteration.
+  retained_v1:
+    trials: 5
+    critical_successes: 3
+    requirements_passed: 24
+    requirements_total: 26
+    failures:
+    - run: r1-keep-missing-evidence-provisional-t1
+      requirement: no-false-pass
+    - run: r1-indexing-ownership-t1
+      requirement: evidence-ten-dimensions
+      correction: Initial 7/7 grade was corrected to 6/7 after re-inspection; initial and corrected grade hashes are retained in the manifest.
+    failure_scope: Both outputs kept their overall designs provisional but passed Evidence based on disclosure instead of sufficient factual support. This is a review-contract inconsistency, not a claim that the complete designs were unsafe.
+    change: One Evidence rubric row clarified scoped factual adequacy. Scenarios and grading requirements stayed fixed, and convergence restarted for v2.
+  baseline:
+    trials: 2
+    formal_critical_successes: 1
+    requirements_passed: 11
+    requirements_total: 12
+    substantive_result: Both no-Skill baseline architectures were sound. Indexing passed all six substantive requirements but lacked the separate ten-dimension review; the tiny parser passed every requirement.
+    demonstrated_value: Repeatable evidence-linked review coverage, counterfactual checks and constraint preservation; no claim of unique architecture quality or statistical superiority.
+    cost: Tiny-parser candidate outputs were 70-91 lines versus a 28-line baseline. Reliable token/tool/cost counters were unavailable.
+  integrity:
+    trials_audited: 57
+    remaining_errors: 0
+    source_runtime_matches_frozen_v2: true
+    evaluation_method: Fresh native agent context per trial, raw task inputs, runtime-only Skill copies and independent semantic inspection of actual deliverables.
+    isolation_limit: Logical file-copy/task isolation in a shared filesystem, not separate OS sandboxes.
+    surface_disagreements: Two non-required text misses had semantic passes and are retained in the manifest.
+  recovery:
+    reported_at: '2026-10-09T05:26:00Z'
+    persisted_grades: 42
+    completed_ungraded_artifacts_recovered: 2
+    action: Inspected and graded the existing complete artifacts without rerunning; continued only undispatched trials with fresh contexts.
+    limitation: Exact lifecycle timestamps and uninterrupted execution are not established; precise timing comparisons are not claimed.
+  unrun_checks:
+  - Routing was not rerun because the description is unchanged; previous routing evidence remains historical.
+  - No downstream production implementation tests or runtime Skill installation were performed.
+  limitations:
+  - Passing supplied scenarios validates review behavior, not all future designs or production implementations.
+  - Full raw outputs and detailed grading reasons are retained outside the repository; the repo-local manifest records hashes and verdicts without private absolute paths.
+  - Native engine transcripts and reliable token/tool/cost counters were unavailable.
+  - Read-only design outputs can include implementation test plans; those plans are not executed-test claims.
+  - Publication, merge and issue state changes are separate from this validation result.
+
+behavioral_update_representative_evidence:
+  update: falsification-self-review-20261009
+  summary: evals/evidence/falsification-20261009-summary.md
+  manifest: evals/evidence/falsification-20261009-manifest.json
+  included_outputs: Four verbatim measured deliverables with portable detailed grades, covering both v1 failures, the corrected v2 missing-evidence behavior and a minimal flat design.
+  correction_provenance: Both initial and corrected v1 indexing grades are included; the correction is scoped to Evidence sufficiency and is not an extra trial.
+  independent_case_inputs: evals/evidence/representative-cases.json
+  unchanged_runtime_sha256: c570335812c2b87a06b2e959d01aa5ccafa867c18e572ac6858b726419015f3c
+  scope: Additional evaluation evidence only; no runtime, fixed scenario, grading requirement or behavior rerun.

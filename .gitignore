@@ -1,0 +1,15 @@
+.DS_Store
+*.log
+*.sock
+*.sqlite
+*.sqlite-*
+auth.json
+cache/
+history/
+node_modules/
+sessions/
+session.json
+release-notes.json
+tmp/
+.tmp/
+.codex-global-state.json

@@ -1,0 +1,13 @@
+skill: TODO-skill-name
+decision:
+  status: pending
+  mechanism: pending
+  existing_skills_checked: []
+iterations: []
+failure_patterns: []
+automated_runs: []
+final:
+  status: pending
+  tier: standard
+  unrun_checks: []
+  limitations: []

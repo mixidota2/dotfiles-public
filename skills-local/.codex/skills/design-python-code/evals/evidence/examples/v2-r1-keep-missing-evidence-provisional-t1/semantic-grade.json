@@ -1,0 +1,77 @@
+{
+  "run_id": "v2-r1-keep-missing-evidence-provisional-t1",
+  "case": "keep-missing-evidence-provisional",
+  "configuration": "with_skill",
+  "candidate_version": "v2",
+  "candidate_freeze_hash": "88404f9700a96b64bad6702493ff0af350bc25b14dc442e06952e38f446db32c",
+  "critical_success": true,
+  "passed": 4,
+  "total": 4,
+  "deliverable_sha256": "2412a9f2757e34aa6362d0c15a343f571404783368b4b17284b4d7bf1efb33ae",
+  "deliverable": "examples/v2-r1-keep-missing-evidence-provisional-t1/deliverable.md",
+  "full_artifact_status": "included_verbatim",
+  "requirements": [
+    {
+      "id": "no-false-pass",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "95-110, especially 107",
+      "reason": "Material ownership, coverage, orchestration, dependency and Evidence remain Revise; honest disclosure explicitly does not substitute for evidence sufficiency."
+    },
+    {
+      "id": "useful-bounded-analysis",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "5-7,33-52,112-120",
+      "reason": "Provides conditional minimal proposal preserving public reserve import and precise evidence priorities; no invented database/concurrency guarantees or executed tests."
+    },
+    {
+      "id": "trace-and-counterfactual-limits",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "66-91",
+      "reason": "Both query/command boundaries covered by Merge/Delete, known public entry traced and missing transitive/state/failure edges clearly unknown."
+    },
+    {
+      "id": "same-rubric-and-read-only",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "93-110,120; input hash check",
+      "reason": "Same ten evidence-linked dimensions before/after; unknowns remain unresolved, read-only and no test claims."
+    }
+  ],
+  "supporting_text": [
+    {
+      "id": "no-false-pass",
+      "required": false,
+      "verdict": "pass",
+      "patterns": [
+        "(?i)(Revise|未確認|暫定|証拠)"
+      ]
+    },
+    {
+      "id": "useful-bounded-analysis",
+      "required": false,
+      "verdict": "pass",
+      "patterns": [
+        "(?i)(reserve|公開|確認|仮定)"
+      ]
+    },
+    {
+      "id": "trace-and-counterfactual-limits",
+      "required": false,
+      "verdict": "pass",
+      "patterns": [
+        "(?i)(Merge|Delete|統合|削除|不明|trace)"
+      ]
+    },
+    {
+      "id": "same-rubric-and-read-only",
+      "required": false,
+      "verdict": "pass",
+      "patterns": [
+        "(?i)(Coverage|Ownership|Cohesion|Dependency|read.only|変更)"
+      ]
+    }
+  ]
+}

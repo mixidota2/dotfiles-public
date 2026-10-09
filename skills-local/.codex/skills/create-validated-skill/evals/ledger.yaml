@@ -1,0 +1,2474 @@
+skill: create-validated-skill
+decision:
+  status: accepted
+  mechanism: skill
+  reason: Reusable skill creation needs selective activation and a multi-step evaluation
+    workflow.
+  existing_skills_checked:
+  - skill-creator
+  distinction: Adds mandatory behavioral, trigger, baseline, convergence, holdout,
+    and ledger gates.
+static_validation:
+  system_quick_validate:
+    status: pass
+    command: uv run --with pyyaml python quick_validate.py <skill-directory>
+    note: PyYAML was not installed in the default interpreter.
+  strict_validator:
+    status: pass
+    command: python3 scripts/validate_skill.py <skill-directory>
+  script_tests:
+    status: pass
+    evidence:
+    - Both Python scripts compiled successfully.
+    - Initialization created the expected scaffold.
+    - Reinitialization refused to overwrite an existing target with exit status 2.
+    - Validation rejected an unresolved scaffold with exit status 1.
+iterations:
+- id: iteration-1
+  revision: initial-implementation
+  tier: deep
+  trials:
+  - scenario: create-domain-skill
+    trial: 1
+    skill_available: true
+    verdict: pass
+    evidence: Searched for overlap, reused canonical resources, defined trigger coverage,
+      and required deep fresh-agent evaluation before completion.
+  - scenario: revise-trigger-mismatch
+    trial: 1
+    skill_available: true
+    verdict: pass
+    evidence: Recorded iteration zero, preserved regression behavior, aligned description
+      and body, and treated missing runtime evidence as unvalidated.
+  - scenario: reject-unnecessary-skill
+    trial: 1
+    skill_available: true
+    verdict: pass
+    evidence: Rejected a new skill and located the equivalent global AGENTS.md rule.
+  critical_failures: 0
+  deterministic_unclear_points: 0
+  result: clear
+- id: iteration-2
+  revision: initial-implementation
+  tier: deep
+  trials:
+  - scenario: create-domain-skill
+    trial: 2
+    skill_available: true
+    verdict: pass
+    evidence: Repeated non-duplication, trigger, fixed-scenario, two-trial, baseline,
+      convergence, and holdout requirements.
+  - scenario: revise-trigger-mismatch
+    trial: 2
+    skill_available: true
+    verdict: pass
+    evidence: Repeated iteration-zero, minimal revision, regression, and deep-tier
+      validation behavior.
+  - scenario: reject-unnecessary-skill
+    trial: 2
+    skill_available: true
+    verdict: pass
+    evidence: Again redirected the always-on rule to global AGENTS.md without scaffolding
+      a skill.
+  critical_failures: 0
+  deterministic_unclear_points: 0
+  result: clear
+baseline:
+  trials:
+  - scenario: create-domain-skill
+    skill_available: false
+    verdict: weaker
+    evidence: Proposed structure and static validation but no fixed behavioral scenarios,
+      ledger, baseline, convergence, or holdout.
+  - scenario: revise-trigger-mismatch
+    skill_available: false
+    verdict: weaker
+    evidence: Proposed forward tests but no durable scenario suite, ledger, baseline
+      comparison, or convergence rule.
+  - scenario: reject-unnecessary-skill
+    skill_available: false
+    verdict: fail
+    evidence: Proposed creating a globally triggered skill instead of using an always-on
+      AGENTS.md rule.
+holdout:
+  scenario: choose-deterministic-enforcement
+  trials:
+  - trial: 1
+    verdict: pass
+    evidence: Distinguished local-hook limitations and made CI plus protected-branch
+      controls the deterministic enforcement layer.
+  - trial: 2
+    verdict: pass
+    evidence: Again made CI plus protected-branch or server-side controls the guarantee
+      and treated the skill only as an installation and verification workflow.
+failure_patterns:
+- general_fix_rule: Before revising an existing skill, capture its exact frontmatter
+    and relevant body sections; never invent line-level evidence or platform-specific
+    instructions.
+  example_issue: The actual deployment-review skill path and pre-edit contents are
+    unavailable.
+  seen_in:
+  - run: 20260803T044541Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Keep the core workflow platform-neutral until the existing skill
+    or repository establishes a platform; then use its native read-only status and
+    health checks.
+  example_issue: The deployment platform and available status/health interfaces are
+    unspecified.
+  seen_in:
+  - run: 20260803T044541Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Use the deep tier for globally installed, distributed, costly,
+    or operationally high-risk skills; otherwise use the standard tier.
+  example_issue: The appropriate evaluation tier cannot be finalized.
+  seen_in:
+  - run: 20260803T044541Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Use scenario statements as the only target-specific evidence;
+    do not invent exact source text, paths, line numbers, commands, or observed behavior.
+  example_issue: The target deployment-review skill’s path and contents were not provided
+    and are not present in the permitted workspace.
+  seen_in:
+  - run: 20260803T044541Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Write platform-neutral workflow requirements first, then use only
+    the platform commands and health signals already supported by the inspected target.
+  example_issue: The deployment platform and its supported status signals are unspecified.
+  seen_in:
+  - run: 20260803T044541Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Use the standard tier for small, local, reversible skills; use
+    the deep tier for important, complex, costly, or broadly distributed skills.
+  example_issue: The appropriate evaluation tier cannot be determined conclusively.
+  seen_in:
+  - run: 20260803T044541Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Resolve and read repository-owned executable interfaces before
+    writing skill instructions; never invent paths, flags, side effects, or output
+    semantics.
+  example_issue: The repository diagnostic script path and supported invocation are
+    unknown.
+  seen_in:
+  - run: 20260803T044541Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Link to and interpret the canonical source rather than duplicating
+    mutable domain metadata.
+  example_issue: The canonical warehouse table-reference path and format are unknown.
+  seen_in:
+  - run: 20260803T044541Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Require an explicit writable skills-directory path before initializing
+    a skill.
+  example_issue: The provided local skills directory cannot be identified with confidence.
+  seen_in:
+  - run: 20260803T044541Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Choose the validation tier from observed risk and distribution
+    characteristics; default to deep tier when failures may be costly or broadly propagated.
+  example_issue: The appropriate standard versus deep evaluation tier cannot be finalized.
+  seen_in:
+  - run: 20260803T044541Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Resolve and verify canonical repository paths before writing skill
+    instructions or diagnostic invocations; never invent an operational path.
+  example_issue: The repository diagnostic script path is unspecified and unavailable.
+  seen_in:
+  - run: 20260803T044541Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+- general_fix_rule: Read the repository’s canonical reference and tailor lookup instructions
+    to its actual format before validating table-resolution behavior.
+  example_issue: The warehouse table-reference path and format are unspecified and
+    unavailable.
+  seen_in:
+  - run: 20260803T044541Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+- general_fix_rule: Require an explicit, writable skills-directory path and check
+    for name collisions before initialization.
+  example_issue: The provided local-skills destination is not identifiable inside
+    the assigned workspace.
+  seen_in:
+  - run: 20260803T044541Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+- general_fix_rule: Inspect and quote the actual target `SKILL.md` before editing;
+    when it is unavailable, distinguish supplied evidence from proposed text and do
+    not fabricate a line-level diff.
+  example_issue: The target deployment-review skill path and source text were not
+    provided.
+  seen_in:
+  - run: 20260803T045118Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Choose the tier from operational risk and distribution scope,
+    preserve fixed scenarios, and add only coverage needed for the newly introduced
+    behavior.
+  example_issue: The target skill’s evaluation tier and existing scenarios are unknown.
+  seen_in:
+  - run: 20260803T045118Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Require the target skill path or contents before quoting exact
+    pre-edit lines or applying a revision; never invent repository evidence.
+  example_issue: The existing deployment-review skill and its exact path are absent.
+  seen_in:
+  - run: 20260803T045118Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Preserve the skill's existing platform conventions; otherwise
+    use platform-neutral outcome requirements until the target identifies the platform.
+  example_issue: The deployment platform is unspecified.
+  seen_in:
+  - run: 20260803T045118Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Use the standard tier for small local reversible skills and the
+    deep tier for important, high-risk, global, or distributed skills.
+  example_issue: The appropriate evaluation tier cannot be determined conclusively.
+  seen_in:
+  - run: 20260803T045118Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Do not invent file contents or line-level evidence; obtain the
+    real target path and capture its exact contract and implementation before editing.
+  example_issue: The target deployment-review skill path and exact `SKILL.md` contents
+    are unavailable.
+  seen_in:
+  - run: 20260803T045719Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Express platform-neutral behavioral requirements in the core skill,
+    then reuse established project commands or place platform-specific detail in linked
+    references.
+  example_issue: The deployment platform and project-specific rollout procedure are
+    unspecified.
+  seen_in:
+  - run: 20260803T045719Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Use the standard tier only for small, local, reversible use; choose
+    the deep tier for important, high-risk, global, or distributed deployment skills.
+  example_issue: The appropriate evaluation tier is not definitively known.
+  seen_in:
+  - run: 20260803T045719Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Capture and quote the exact description and conflicting body text
+    before editing; never invent baseline evidence.
+  example_issue: The deployment-review skill path and exact current contents were
+    not provided.
+  seen_in:
+  - run: 20260803T045719Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Keep the core workflow platform-neutral, then use the target skill's
+    existing platform terminology and read-only status commands when known.
+  example_issue: The deployment platform is unspecified.
+  seen_in:
+  - run: 20260803T045719Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Use the standard tier for small, local, reversible skills and
+    the deep tier for important, operational, global, or distributed skills.
+  example_issue: The appropriate evaluation tier cannot be determined definitively.
+  seen_in:
+  - run: 20260803T045719Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Locate and inspect the repository-owned script and its help output
+    before encoding or invoking any command; never infer flags.
+  example_issue: The diagnostic script’s path and command-line interface are unknown.
+  seen_in:
+  - run: 20260803T045719Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Read the authoritative repository reference and resolve an exact
+    table entry before table-specific diagnosis.
+  example_issue: The table reference’s path, schema, and entries are unknown.
+  seen_in:
+  - run: 20260803T045719Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Resolve an explicit writable skills root and check for an existing
+    same-name skill before initialization.
+  example_issue: The requested local skills destination is not concretely available.
+  seen_in:
+  - run: 20260803T045719Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Choose the deep tier when diagnostic output may guide incident
+    response; downgrade only with documented evidence that the skill is small, local,
+    and reversible.
+  example_issue: The appropriate evaluation tier is not specified.
+  seen_in:
+  - run: 20260803T045719Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Provide an explicit writable skills-directory path before scaffolding,
+    and verify that the target directory does not already exist.
+  example_issue: The provided local skills directory is not present in the exposed
+    workspace.
+  seen_in:
+  - run: 20260803T045719Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+- general_fix_rule: Discover and inspect authoritative repository assets before writing
+    links, commands, flags, or interpretation rules; never guess them.
+  example_issue: The diagnostic script and table-reference paths and contents are
+    unavailable.
+  seen_in:
+  - run: 20260803T045719Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+- general_fix_rule: Use the deep tier when a skill is globally distributed, operationally
+    important, costly to fail, or capable of production access; otherwise document
+    why standard tier is sufficient.
+  example_issue: The correct evaluation tier cannot be finalized.
+  seen_in:
+  - run: 20260803T045719Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+- general_fix_rule: Define the enforcement boundary explicitly. Use pre-receive enforcement
+    for every pushed commit, or required CI plus branch protection for every commit
+    admitted to protected branches; never claim local pre-commit hooks provide an
+    absolute guarantee.
+  example_issue: Whether “every committed Python file” means every local commit, every
+    pushed commit on any branch, or only commits admitted to protected branches.
+  seen_in:
+  - run: 20260803T050316Z
+    task: choose-deterministic-enforcement
+    trial: 1
+    source: executor
+- general_fix_rule: Define enforceable guarantees at a controlled trust boundary,
+    such as commits accepted by a protected remote repository.
+  example_issue: Whether “every committed Python file” means every local commit or
+    every commit accepted into the authoritative repository.
+  seen_in:
+  - run: 20260803T050316Z
+    task: choose-deterministic-enforcement
+    trial: 2
+    source: executor
+- general_fix_rule: Use a server-side pre-receive hook when available; otherwise use
+    a required, non-bypassable CI check with protected branches.
+  example_issue: Whether the hosting platform supports pre-receive hooks.
+  seen_in:
+  - run: 20260803T050316Z
+    task: choose-deterministic-enforcement
+    trial: 2
+    source: executor
+- general_fix_rule: Define the enforcement boundary explicitly; use a pre-commit hook
+    for local feedback and a pre-receive hook or protected-branch CI for authoritative
+    enforcement.
+  example_issue: Whether “every committed Python file” means every local commit or
+    every commit accepted by the authoritative repository.
+  seen_in:
+  - run: 20260803T052641Z
+    task: choose-deterministic-enforcement
+    trial: 1
+    source: executor
+- general_fix_rule: 'Place the mandatory check at the narrowest authoritative boundary
+    matching the guarantee: pre-commit for local feedback, required CI for integration,
+    and server-side pre-receive for every accepted pushed commit.'
+  example_issue: Whether “every committed Python file” means every local commit, every
+    commit pushed to the shared repository, or only commits merged into protected
+    branches.
+  seen_in:
+  - run: 20260803T052641Z
+    task: choose-deterministic-enforcement
+    trial: 2
+    source: executor
+- general_fix_rule: Before editing, capture the actual frontmatter and relevant body
+    verbatim; never invent file content, paths, or line numbers.
+  example_issue: The existing deployment-review skill’s path and exact contents are
+    unavailable.
+  seen_in:
+  - run: 20260803T052845Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Keep the core workflow platform-neutral, then add platform-specific
+    commands only when the existing skill’s supported system and tools are known.
+  example_issue: The deployment platform and available runtime tools are unspecified.
+  seen_in:
+  - run: 20260803T052845Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Use standard tier for small, local, reversible skills; use deep
+    tier for important, costly, globally installed, or distributed skills.
+  example_issue: The appropriate evaluation tier is not established.
+  seen_in:
+  - run: 20260803T052845Z
+    task: revise-trigger-mismatch
+    trial: 1
+    source: executor
+- general_fix_rule: Before revising an existing skill, capture its path, revision,
+    exact routing description, relevant body sections, linked resources, and iteration-zero
+    behavior; never invent source text.
+  example_issue: The exact deployment-review skill path and current text were not
+    supplied and are absent from the workspace.
+  seen_in:
+  - run: 20260803T052845Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Write platform-neutral decision steps in the core skill and add
+    platform-specific commands only for platforms demonstrated by existing skill behavior
+    or explicit inputs.
+  example_issue: The deployment platform is unspecified.
+  seen_in:
+  - run: 20260803T052845Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Use standard-tier validation for small local reversible skills
+    and deep-tier validation for important, high-risk, global, or broadly distributed
+    skills.
+  example_issue: The appropriate evaluation tier cannot be determined from the scenario.
+  seen_in:
+  - run: 20260803T052845Z
+    task: revise-trigger-mismatch
+    trial: 2
+    source: executor
+- general_fix_rule: Provide or mount the repository input; derive commands and flags
+    from the script or its authoritative documentation rather than inventing them.
+  example_issue: The existing Acme diagnostic script path, interface, and test command
+    are unavailable.
+  seen_in:
+  - run: 20260803T052845Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Provide the authoritative table reference and preserve its canonical
+    identifiers, owners, SLAs, upstreams, and freshness fields.
+  example_issue: The existing table-reference path and schema are unavailable.
+  seen_in:
+  - run: 20260803T052845Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Supply an explicit writable destination and resolve it to an absolute
+    path before initialization.
+  example_issue: The destination local-skills directory is not identified within the
+    workspace.
+  seen_in:
+  - run: 20260803T052845Z
+    task: create-domain-skill
+    trial: 1
+    source: executor
+- general_fix_rule: Provide the repository tree or the exact script path and interface;
+    read the script and its help output before encoding any invocation or flag in
+    the skill.
+  example_issue: The repository diagnostic script path and interface are unspecified.
+  seen_in:
+  - run: 20260803T052845Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+- general_fix_rule: Provide the exact reference path and format; make it authoritative
+    in the skill and never duplicate or invent its table metadata.
+  example_issue: The authoritative table-reference path and schema are unspecified.
+  seen_in:
+  - run: 20260803T052845Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+- general_fix_rule: Supply a concrete writable destination and verify that the target
+    directory does not already exist before initialization.
+  example_issue: The provided local skills directory is not identified as a concrete
+    writable path.
+  seen_in:
+  - run: 20260803T052845Z
+    task: create-domain-skill
+    trial: 2
+    source: executor
+automated_runs:
+- id: 20260803T040524Z
+  mode: routing
+  model: default
+  results_dir: evals/results/20260803T040524Z
+  routing_summary:
+    isolated:
+      positive:
+        trials: 6
+        activation_rate: 1.0
+        pass_rate: 1.0
+      negative:
+        trials: 6
+        activation_rate: 0.0
+        pass_rate: 1.0
+      near-miss:
+        trials: 6
+        activation_rate: 0.0
+        pass_rate: 1.0
+    normal:
+      positive:
+        trials: 6
+        activation_rate: 1.0
+        pass_rate: 1.0
+      negative:
+        trials: 6
+        activation_rate: 0.0
+        pass_rate: 1.0
+      near-miss:
+        trials: 6
+        activation_rate: 0.0
+        pass_rate: 1.0
+  routing_gates:
+    isolated:
+      checks:
+        critical_positive_activation: true
+        positive_activation_rate: true
+        negative_false_activation_rate: true
+        near_miss_false_activation_rate: true
+        executor_processes: true
+      pass: true
+    normal:
+      checks:
+        critical_positive_activation: true
+        positive_activation_rate: true
+        negative_false_activation_rate: true
+        near_miss_false_activation_rate: true
+        executor_processes: true
+      pass: true
+  routing_trials:
+  - case: add-global-rule
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: add-global-rule
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: enforce-ruff-in-ci
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: enforce-ruff-in-ci
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: fix-skill-typo-only
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: fix-skill-typo-only
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: edit-python-function
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: edit-python-function
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-skills-concept
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-skills-concept
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: summarize-skill-document
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: summarize-skill-document
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: create-specialized-skill
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: create-specialized-skill
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: evaluate-skill-readiness
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: evaluate-skill-readiness
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: revise-skill-workflow
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: revise-skill-workflow
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: add-global-rule
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: add-global-rule
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: enforce-ruff-in-ci
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: enforce-ruff-in-ci
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: fix-skill-typo-only
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: fix-skill-typo-only
+    kind: near-miss
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: edit-python-function
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: edit-python-function
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-skills-concept
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: explain-skills-concept
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: summarize-skill-document
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: summarize-skill-document
+    kind: negative
+    critical: false
+    profile: normal
+    trial: 2
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: create-specialized-skill
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: create-specialized-skill
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: evaluate-skill-readiness
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: evaluate-skill-readiness
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: revise-skill-workflow
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  - case: revise-skill-workflow
+    kind: positive
+    critical: true
+    profile: normal
+    trial: 2
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  behavior_trials: []
+- id: 20260803T041501Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260803T041501Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 1
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-1/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The location and contents of the existing deployment-review skill are
+        unknown.
+      general_fix_rule: Supply or copy the complete target skill to a readable path
+        containing no evals directory component.
+    - issue: The deployment platform and rollout-status interface are unspecified.
+      general_fix_rule: Derive rollout commands from the skill’s existing platform
+        contract; if absent, make the platform an explicit required input rather than
+        silently assuming one.
+    - issue: Behavioral validation cannot follow the requested skill workflow while
+        all evals paths remain forbidden.
+      general_fix_rule: Permit the validation runner—not the fresh executor—to access
+        the target skill’s evals metadata and ledger, while continuing to forbid executors
+        from inspecting evaluator files.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The deliverable says the original skill was not inspected and lists
+        “Record iteration-zero behavior” as uncompleted. It provides only a proposed
+        future workflow, not captured evidence of the current description/body mismatch
+        or existing manifest behavior.
+      general_fix_rule: Before editing, capture concrete evidence from the existing
+        skill showing the rollout-validation promise, the manifest-only implementation,
+        and the useful behaviors that must be preserved.
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor explicitly reports “Revision is blocked, not completed,”
+        states that no target files were read or changed, and lists the minimal description/workflow
+        revision as uncompleted.
+      general_fix_rule: Inspect the existing implementation, retain its manifest checks,
+        add only the missing rollout-validation workflow, and verify the resulting
+        description and body describe the same scope.
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: No validators, routing tests, behavior scenarios, or regressions were
+        run. The deliverable presents these solely as future steps and lists all relevant
+        validation work as uncompleted.
+      general_fix_rule: After making the revision, rerun typical, edge, negative,
+        safety, isolated-routing, normal-routing, and existing regression cases, recording
+        observable results and resolving failures.
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 2
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-2/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The target deployment-review skill’s permissible path and current contents
+        are unavailable.
+      general_fix_rule: Provide a writable copy or path outside every evals directory
+        when a task prohibits evals inspection.
+    - issue: The target platform and rollout mechanism are unknown.
+      general_fix_rule: Derive platform-specific commands from the existing skill
+        and supplied deployment context; keep the workflow platform-neutral when no
+        platform is declared.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor explicitly lists “Inspect the existing deployment-review
+        skill and record iteration-zero evidence” as uncompleted. The proposed workflow
+        describes how to collect this evidence but does not actually capture the current
+        description/body mismatch or baseline behavior.
+      general_fix_rule: Before editing, capture concrete evidence from the current
+        skill showing its description, manifest-checking behavior, missing rollout
+        workflow, and relevant baseline test results.
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The deliverable states, “no files were changed.” It proposes retaining
+        manifest checks and adding rollout validation, but there is no observable
+        revision confirming either preservation or alignment.
+      general_fix_rule: 'Apply a minimal revision to a writable target: preserve existing
+        manifest checks, add only the promised rollout-validation workflow, and confirm
+        the frontmatter description accurately matches the resulting behavior.'
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor lists all routing and behavior evaluations as uncompleted.
+        Suggested commands and planned scenarios are not evidence that affected behavior,
+        routing cases, or regressions were rerun.
+      general_fix_rule: After editing, run affected behavior scenarios, positive/negative/near-miss
+        trigger tests in required profiles, existing regression coverage, and validators;
+        retain concrete results for each run.
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-1/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The exact global AGENTS.md location was not supplied.
+      general_fix_rule: Place broad rules in the highest-level AGENTS.md governing
+        all intended repositories; confirm the active global configuration path before
+        editing.
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-2/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The exact path of the global AGENTS.md was not provided.
+      general_fix_rule: Resolve the effective global Codex configuration location
+        before adding broadly applicable instructions.
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-domain-skill
+    kind: typical
+    trial: 1
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-domain-skill/trial-1/executor-output.json
+    events_path: behavior/create-domain-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The exact destination called the provided local skills directory is unspecified.
+      general_fix_rule: Supply an explicit writable skills-directory path outside
+        every evals tree.
+    - issue: The diagnostic script and table-reference paths and interfaces are unknown.
+      general_fix_rule: Expose repository inputs at permitted paths and identify their
+        supported invocation and reference formats before authoring operational instructions.
+    retry_count: 0
+    requirements:
+    - id: overlap-check
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: trigger-contract
+      critical: true
+      combined_verdict: fail
+      text_verdict: fail
+      semantic_verdict: fail
+      evidence: The deliverable proposes general activation for diagnosing Acme warehouse
+        freshness incidents and mentions a near-miss evaluation, but it does not define
+        concrete positive, negative, and adjacent near-miss requests. No skill was
+        created.
+      general_fix_rule: 'Document concrete examples in all three categories: requests
+        that must trigger, requests that must not trigger, and plausibly adjacent
+        near misses that must remain out of scope.'
+    - id: behavioral-evaluation
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor says the skill “is not behaviorally validated” and lists
+        fresh-agent behavioral evaluation as uncompleted. Typical, edge, and near-miss
+        scenarios are proposed but were not created or executed.
+      general_fix_rule: Create fixed typical, edge, and negative scenarios, execute
+        each with fresh agents, record observable evidence and outcomes, resolve failures,
+        and only then declare completion.
+    - id: canonical-resource-reuse
+      critical: false
+      combined_verdict: fail
+      text_verdict: fail
+      semantic_verdict: fail
+      evidence: The workflow says to link the existing table reference and diagnostic
+        script directly and avoid duplication, but the assets were never inspected
+        or linked because no skill was created.
+      general_fix_rule: Reference the repository’s existing diagnostic script and
+        table reference by their canonical paths from SKILL.md; do not copy their
+        contents into the skill.
+  - task: create-domain-skill
+    kind: typical
+    trial: 2
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-domain-skill/trial-2/executor-output.json
+    events_path: behavior/create-domain-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The intended local skills directory is not explicitly identified outside
+        the current workspace.
+      general_fix_rule: Always provide the exact writable target directory, outside
+        prohibited evaluation trees, when requesting skill creation.
+    - issue: The diagnostic script and table-reference paths and interfaces are unknown.
+      general_fix_rule: Provide repository access outside `evals/`, or explicitly
+        supply the verified paths and supported invocation contract.
+    retry_count: 0
+    requirements:
+    - id: overlap-check
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor lists searching installed and repository-local skills
+        only as future work and explicitly marks it uncompleted.
+      general_fix_rule: Before creating a skill, perform and document a read-only
+        search of installed and repository-local skills, recording candidates and
+        the non-duplication decision.
+    - id: trigger-contract
+      critical: true
+      combined_verdict: fail
+      text_verdict: fail
+      semantic_verdict: fail
+      evidence: The output proposes adding triggers, non-triggers, and near-miss scenarios
+        later, but provides no concrete request examples or completed trigger contract.
+      general_fix_rule: Define explicit example requests that should trigger, should
+        not trigger, and are adjacent near misses, with clear routing distinctions.
+    - id: behavioral-evaluation
+      critical: true
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The workflow mentions typical, edge, negative, and near-miss scenarios
+        and fresh-executor evaluations, but no fixed scenarios were written or executed;
+        validation is listed as uncompleted.
+      general_fix_rule: Create fixed typical, edge, and negative scenarios with observable
+        expectations, execute each using fresh agents, record results, and require
+        all critical cases to pass before completion.
+    - id: canonical-resource-reuse
+      critical: false
+      combined_verdict: fail
+      text_verdict: pass
+      semantic_verdict: fail
+      evidence: The executor states that the diagnostic script and table reference
+        should remain canonical and not be duplicated, but it did not locate, link,
+        invoke, or reuse either resource.
+      general_fix_rule: Reference the existing repository script and table documentation
+        directly from the skill, verify their paths and interface, and avoid copying
+        their implementation or content into the skill.
+- id: 20260803T044541Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260803T044541Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-1/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The actual deployment-review skill path and pre-edit contents are unavailable.
+      general_fix_rule: Before revising an existing skill, capture its exact frontmatter
+        and relevant body sections; never invent line-level evidence or platform-specific
+        instructions.
+    - issue: The deployment platform and available status/health interfaces are unspecified.
+      general_fix_rule: Keep the core workflow platform-neutral until the existing
+        skill or repository establishes a platform; then use its native read-only
+        status and health checks.
+    - issue: The appropriate evaluation tier cannot be finalized.
+      general_fix_rule: Use the deep tier for globally installed, distributed, costly,
+        or operationally high-risk skills; otherwise use the standard tier.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 2
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-2/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: The target deployment-review skill’s path and contents were not provided
+        and are not present in the permitted workspace.
+      general_fix_rule: Use scenario statements as the only target-specific evidence;
+        do not invent exact source text, paths, line numbers, commands, or observed
+        behavior.
+    - issue: The deployment platform and its supported status signals are unspecified.
+      general_fix_rule: Write platform-neutral workflow requirements first, then use
+        only the platform commands and health signals already supported by the inspected
+        target.
+    - issue: The appropriate evaluation tier cannot be determined conclusively.
+      general_fix_rule: Use the standard tier for small, local, reversible skills;
+        use the deep tier for important, complex, costly, or broadly distributed skills.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: pass
+      evidence: The validation workflow requires fresh behavior trials for affected
+        typical, edge, constrained, regression, and negative scenarios; separate routing
+        evaluation; and confirmation that existing manifest regression behavior remains
+        intact. Readiness requires critical behavior, regressions, and routing thresholds
+        to pass.
+      general_fix_rule: ''
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 1
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-1/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: pass
+      evidence: The deliverable explicitly states, “No skill was created” and “No
+        files were modified.”
+      general_fix_rule: ''
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 2
+    verdict: fail
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-2/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: pass
+      evidence: The deliverable explicitly states, “No skill should be created,” and
+        reports that no files were modified.
+      general_fix_rule: ''
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-domain-skill
+    kind: typical
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-domain-skill/trial-1/executor-output.json
+    events_path: behavior/create-domain-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The repository diagnostic script path and supported invocation are unknown.
+      general_fix_rule: Resolve and read repository-owned executable interfaces before
+        writing skill instructions; never invent paths, flags, side effects, or output
+        semantics.
+    - issue: The canonical warehouse table-reference path and format are unknown.
+      general_fix_rule: Link to and interpret the canonical source rather than duplicating
+        mutable domain metadata.
+    - issue: The provided local skills directory cannot be identified with confidence.
+      general_fix_rule: Require an explicit writable skills-directory path before
+        initializing a skill.
+    - issue: The appropriate standard versus deep evaluation tier cannot be finalized.
+      general_fix_rule: Choose the validation tier from observed risk and distribution
+        characteristics; default to deep tier when failures may be costly or broadly
+        propagated.
+    retry_count: 0
+    requirements:
+    - id: overlap-check
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: trigger-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: behavioral-evaluation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: canonical-resource-reuse
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-domain-skill
+    kind: typical
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-domain-skill/trial-2/executor-output.json
+    events_path: behavior/create-domain-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The repository diagnostic script path is unspecified and unavailable.
+      general_fix_rule: Resolve and verify canonical repository paths before writing
+        skill instructions or diagnostic invocations; never invent an operational
+        path.
+    - issue: The warehouse table-reference path and format are unspecified and unavailable.
+      general_fix_rule: Read the repository’s canonical reference and tailor lookup
+        instructions to its actual format before validating table-resolution behavior.
+    - issue: The provided local-skills destination is not identifiable inside the
+        assigned workspace.
+      general_fix_rule: Require an explicit, writable skills-directory path and check
+        for name collisions before initialization.
+    retry_count: 0
+    requirements:
+    - id: overlap-check
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: trigger-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: behavioral-evaluation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: canonical-resource-reuse
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260803T045118Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260803T045118Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-1/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The target deployment-review skill path and source text were not provided.
+      general_fix_rule: Inspect and quote the actual target `SKILL.md` before editing;
+        when it is unavailable, distinguish supplied evidence from proposed text and
+        do not fabricate a line-level diff.
+    - issue: The target skill’s evaluation tier and existing scenarios are unknown.
+      general_fix_rule: Choose the tier from operational risk and distribution scope,
+        preserve fixed scenarios, and add only coverage needed for the newly introduced
+        behavior.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-2/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The existing deployment-review skill and its exact path are absent.
+      general_fix_rule: Require the target skill path or contents before quoting exact
+        pre-edit lines or applying a revision; never invent repository evidence.
+    - issue: The deployment platform is unspecified.
+      general_fix_rule: Preserve the skill's existing platform conventions; otherwise
+        use platform-neutral outcome requirements until the target identifies the
+        platform.
+    - issue: The appropriate evaluation tier cannot be determined conclusively.
+      general_fix_rule: Use the standard tier for small local reversible skills and
+        the deep tier for important, high-risk, global, or distributed skills.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-1/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: skipped
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-2/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260803T045719Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260803T045719Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-1/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The target deployment-review skill path and exact `SKILL.md` contents
+        are unavailable.
+      general_fix_rule: Do not invent file contents or line-level evidence; obtain
+        the real target path and capture its exact contract and implementation before
+        editing.
+    - issue: The deployment platform and project-specific rollout procedure are unspecified.
+      general_fix_rule: Express platform-neutral behavioral requirements in the core
+        skill, then reuse established project commands or place platform-specific
+        detail in linked references.
+    - issue: The appropriate evaluation tier is not definitively known.
+      general_fix_rule: Use the standard tier only for small, local, reversible use;
+        choose the deep tier for important, high-risk, global, or distributed deployment
+        skills.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-2/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: The deployment-review skill path and exact current contents were not
+        provided.
+      general_fix_rule: Capture and quote the exact description and conflicting body
+        text before editing; never invent baseline evidence.
+    - issue: The deployment platform is unspecified.
+      general_fix_rule: Keep the core workflow platform-neutral, then use the target
+        skill's existing platform terminology and read-only status commands when known.
+    - issue: The appropriate evaluation tier cannot be determined definitively.
+      general_fix_rule: Use the standard tier for small, local, reversible skills
+        and the deep tier for important, operational, global, or distributed skills.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-1/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-2/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-domain-skill
+    kind: typical
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-domain-skill/trial-1/executor-output.json
+    events_path: behavior/create-domain-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The diagnostic script’s path and command-line interface are unknown.
+      general_fix_rule: Locate and inspect the repository-owned script and its help
+        output before encoding or invoking any command; never infer flags.
+    - issue: The table reference’s path, schema, and entries are unknown.
+      general_fix_rule: Read the authoritative repository reference and resolve an
+        exact table entry before table-specific diagnosis.
+    - issue: The requested local skills destination is not concretely available.
+      general_fix_rule: Resolve an explicit writable skills root and check for an
+        existing same-name skill before initialization.
+    - issue: The appropriate evaluation tier is not specified.
+      general_fix_rule: Choose the deep tier when diagnostic output may guide incident
+        response; downgrade only with documented evidence that the skill is small,
+        local, and reversible.
+    retry_count: 0
+    requirements:
+    - id: overlap-check
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: trigger-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: behavioral-evaluation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: canonical-resource-reuse
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-domain-skill
+    kind: typical
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-domain-skill/trial-2/executor-output.json
+    events_path: behavior/create-domain-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The provided local skills directory is not present in the exposed workspace.
+      general_fix_rule: Provide an explicit writable skills-directory path before
+        scaffolding, and verify that the target directory does not already exist.
+    - issue: The diagnostic script and table-reference paths and contents are unavailable.
+      general_fix_rule: Discover and inspect authoritative repository assets before
+        writing links, commands, flags, or interpretation rules; never guess them.
+    - issue: The correct evaluation tier cannot be finalized.
+      general_fix_rule: Use the deep tier when a skill is globally distributed, operationally
+        important, costly to fail, or capable of production access; otherwise document
+        why standard tier is sufficient.
+    retry_count: 0
+    requirements:
+    - id: overlap-check
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: trigger-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: behavioral-evaluation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: canonical-resource-reuse
+      critical: false
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: pass
+      evidence: The proposed skill treats the repository diagnostic script and table
+        reference as authoritative, links to them directly, inspects the script’s
+        current source/help, and explicitly prohibits copying the table catalog or
+        reimplementing diagnostic checks.
+      general_fix_rule: ''
+- id: 20260803T050316Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260803T050316Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: choose-deterministic-enforcement
+    kind: holdout
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/choose-deterministic-enforcement/trial-1/executor-output.json
+    events_path: behavior/choose-deterministic-enforcement/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: Whether “every committed Python file” means every local commit, every
+        pushed commit on any branch, or only commits admitted to protected branches.
+      general_fix_rule: Define the enforcement boundary explicitly. Use pre-receive
+        enforcement for every pushed commit, or required CI plus branch protection
+        for every commit admitted to protected branches; never claim local pre-commit
+        hooks provide an absolute guarantee.
+    retry_count: 0
+    requirements:
+    - id: skill-not-enforcement
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: deterministic-enforcement
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: agents-complementary
+      critical: false
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: pass
+      evidence: AGENTS.md is not mentioned or relied upon. The stated guarantee instead
+        comes from required CI/branch protection or a server-side pre-receive hook,
+        so there is no misuse of AGENTS.md as enforcement.
+      general_fix_rule: ''
+  - task: choose-deterministic-enforcement
+    kind: holdout
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/choose-deterministic-enforcement/trial-2/executor-output.json
+    events_path: behavior/choose-deterministic-enforcement/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: Whether “every committed Python file” means every local commit or every
+        commit accepted into the authoritative repository.
+      general_fix_rule: Define enforceable guarantees at a controlled trust boundary,
+        such as commits accepted by a protected remote repository.
+    - issue: Whether the hosting platform supports pre-receive hooks.
+      general_fix_rule: Use a server-side pre-receive hook when available; otherwise
+        use a required, non-bypassable CI check with protected branches.
+    retry_count: 0
+    requirements:
+    - id: skill-not-enforcement
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: deterministic-enforcement
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: agents-complementary
+      critical: false
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: pass
+      evidence: The deliverable does not mention or rely on AGENTS.md. No agent guidance
+        is presented as deterministic enforcement.
+      general_fix_rule: ''
+- id: 20260803T052641Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260803T052641Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: choose-deterministic-enforcement
+    kind: holdout
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/choose-deterministic-enforcement/trial-1/executor-output.json
+    events_path: behavior/choose-deterministic-enforcement/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points:
+    - issue: Whether “every committed Python file” means every local commit or every
+        commit accepted by the authoritative repository.
+      general_fix_rule: Define the enforcement boundary explicitly; use a pre-commit
+        hook for local feedback and a pre-receive hook or protected-branch CI for
+        authoritative enforcement.
+    retry_count: 0
+    requirements:
+    - id: skill-not-enforcement
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: deterministic-enforcement
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: agents-complementary
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: choose-deterministic-enforcement
+    kind: holdout
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/choose-deterministic-enforcement/trial-2/executor-output.json
+    events_path: behavior/choose-deterministic-enforcement/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: skipped
+      formatting: ok
+    unclear_points:
+    - issue: Whether “every committed Python file” means every local commit, every
+        commit pushed to the shared repository, or only commits merged into protected
+        branches.
+      general_fix_rule: 'Place the mandatory check at the narrowest authoritative
+        boundary matching the guarantee: pre-commit for local feedback, required CI
+        for integration, and server-side pre-receive for every accepted pushed commit.'
+    retry_count: 0
+    requirements:
+    - id: skill-not-enforcement
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: deterministic-enforcement
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: agents-complementary
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+- id: 20260803T052845Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260803T052845Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_trials:
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-1/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The existing deployment-review skill’s path and exact contents are unavailable.
+      general_fix_rule: Before editing, capture the actual frontmatter and relevant
+        body verbatim; never invent file content, paths, or line numbers.
+    - issue: The deployment platform and available runtime tools are unspecified.
+      general_fix_rule: Keep the core workflow platform-neutral, then add platform-specific
+        commands only when the existing skill’s supported system and tools are known.
+    - issue: The appropriate evaluation tier is not established.
+      general_fix_rule: Use standard tier for small, local, reversible skills; use
+        deep tier for important, costly, globally installed, or distributed skills.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: revise-trigger-mismatch
+    kind: edge
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/revise-trigger-mismatch/trial-2/executor-output.json
+    events_path: behavior/revise-trigger-mismatch/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The exact deployment-review skill path and current text were not supplied
+        and are absent from the workspace.
+      general_fix_rule: Before revising an existing skill, capture its path, revision,
+        exact routing description, relevant body sections, linked resources, and iteration-zero
+        behavior; never invent source text.
+    - issue: The deployment platform is unspecified.
+      general_fix_rule: Write platform-neutral decision steps in the core skill and
+        add platform-specific commands only for platforms demonstrated by existing
+        skill behavior or explicit inputs.
+    - issue: The appropriate evaluation tier cannot be determined from the scenario.
+      general_fix_rule: Use standard-tier validation for small local reversible skills
+        and deep-tier validation for important, high-risk, global, or broadly distributed
+        skills.
+    retry_count: 0
+    requirements:
+    - id: iteration-zero
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: preserve-and-align
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: regression-and-trigger-rerun
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: ambiguity-fails
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-1/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: skipped
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: reject-unnecessary-skill
+    kind: negative
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/reject-unnecessary-skill/trial-2/executor-output.json
+    events_path: behavior/reject-unnecessary-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: skipped
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: no-skill-scaffold
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: always-on-rule
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: mechanism-rationale
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-domain-skill
+    kind: typical
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-domain-skill/trial-1/executor-output.json
+    events_path: behavior/create-domain-skill/trial-1/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The existing Acme diagnostic script path, interface, and test command
+        are unavailable.
+      general_fix_rule: Provide or mount the repository input; derive commands and
+        flags from the script or its authoritative documentation rather than inventing
+        them.
+    - issue: The existing table-reference path and schema are unavailable.
+      general_fix_rule: Provide the authoritative table reference and preserve its
+        canonical identifiers, owners, SLAs, upstreams, and freshness fields.
+    - issue: The destination local-skills directory is not identified within the workspace.
+      general_fix_rule: Supply an explicit writable destination and resolve it to
+        an absolute path before initialization.
+    retry_count: 0
+    requirements:
+    - id: overlap-check
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: trigger-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: behavioral-evaluation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: canonical-resource-reuse
+      critical: false
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-domain-skill
+    kind: typical
+    trial: 2
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-domain-skill/trial-2/executor-output.json
+    events_path: behavior/create-domain-skill/trial-2/executor-events.jsonl
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: stuck
+      formatting: ok
+    unclear_points:
+    - issue: The repository diagnostic script path and interface are unspecified.
+      general_fix_rule: Provide the repository tree or the exact script path and interface;
+        read the script and its help output before encoding any invocation or flag
+        in the skill.
+    - issue: The authoritative table-reference path and schema are unspecified.
+      general_fix_rule: Provide the exact reference path and format; make it authoritative
+        in the skill and never duplicate or invent its table metadata.
+    - issue: The provided local skills directory is not identified as a concrete writable
+        path.
+      general_fix_rule: Supply a concrete writable destination and verify that the
+        target directory does not already exist before initialization.
+    retry_count: 0
+    requirements:
+    - id: overlap-check
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: trigger-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: behavioral-evaluation
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: canonical-resource-reuse
+      critical: false
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: pass
+      evidence: The implementation makes the existing table reference authoritative
+        and requires use of the existing diagnostic script without reimplementing
+        its logic. It explicitly prohibits copying the table catalog or substituting
+        ad hoc SQL.
+      general_fix_rule: ''
+final:
+  status: pass
+  tier: deep
+  unrun_checks: []
+  evidence:
+    automatic_routing:
+      run: 20260803T040524Z
+      trials: 36
+      isolated_profile: pass
+      normal_profile: pass
+      positive_activation_rate: 1.0
+      negative_false_activation_rate: 0.0
+      near_miss_false_activation_rate: 0.0
+    paired_behavioral_evaluation:
+      first_full_clear_run: 20260803T045719Z
+      second_full_clear_run: 20260803T052845Z
+      trials_per_run: 6
+      critical_failures: 0
+      deterministic_unclear_points: 0
+    holdout:
+      run: 20260803T052641Z
+      trials: 2
+      critical_failures: 0
+      deterministic_unclear_points: 0
+  limitations:
+  - Executor scenarios used hypothetical project inputs, so they evaluated decisions
+    and workflow rather than a real downstream skill artifact.
+outcome_first_revision:
+  date: 2026-08-24
+  status: pass
+  purpose: Make task outcome and with-skill/without-skill improvement the primary
+    evidence; keep routing as a later, proportionate smoke test.
+  source_alignment:
+  - >-
+    mizchi/skills meta/empirical-prompt-tuning: fixed scenarios, blank-slate
+    execution, phase traces, unclear-point extraction, and minimal general fixes.
+  - >-
+    mizchi/skills meta/waxa-eval and tools/waxa: independently grade the same task
+    with and without the skill, then compare objective deltas instead of asking one
+    judge for a subjective A/B preference.
+  behavior_evidence:
+    representative_baseline:
+      run: 20260819T110559Z
+      task: create-domain-skill
+      with_skill:
+        task_pass_rate: 1.0
+        requirement_pass_rate: 1.0
+        average_duration_ms: 85357
+        average_tool_uses: 3
+      without_skill:
+        task_pass_rate: 0.0
+        requirement_pass_rate: 0.1667
+        average_duration_ms: 61395
+        average_tool_uses: 3
+      delta:
+        task_pass_rate: 1.0
+        requirement_pass_rate: 0.8333
+        average_duration_ms: 23962
+        average_tool_uses: 0
+    final_fresh_agent_checks:
+    - scenario: revise-trigger-mismatch
+      kind: edge
+      verdict: pass
+      critical_requirements: 5/5
+      evidence: Selected deep evaluation because a read-only review can still create
+        operational false assurance; preserved existing checks and limited regression
+        work to affected behavior.
+    - scenario: create-domain-skill
+      kind: typical-regression
+      verdict: pass
+      evidence: Produced outcome-first scenarios, reused canonical repository
+        interfaces, compared a representative baseline, and deferred routing until
+        task value was established.
+    - scenario: reject-unnecessary-skill
+      kind: negative
+      verdict: pass
+      evidence: Rejected a new skill when an always-on rule was the narrower durable
+        mechanism.
+  routing_evidence:
+    scope: One isolated trial each for positive, negative, and near-miss.
+    initial_run: 20260824T054004Z
+    initial_result: Positive and negative passed; spelling-only near-miss exposed an
+      over-broad description.
+    targeted_rerun: 20260824T055537Z
+    targeted_result: pass
+    final_cases:
+      positive: pass
+      negative: pass
+      near_miss: pass
+  runner_changes:
+  - Added real baseline execution and task, requirement, duration, and tool-use deltas.
+  - Skip semantic grading after executor failure or timeout; default each process to
+    180 seconds.
+  - Make targeted --case routing runs gate only the kinds actually executed.
+  known_evaluation_failures:
+  - An early edge scenario omitted the exact source evidence its rubric required;
+    the scenario was fixed before judging the skill.
+  - One 300-second executor run timed out; this was classified as runtime failure,
+    not evidence against the skill.
+  - A reused uv-managed Python 3.13 environment had a recursive
+    _uv_ephemeral_overlay.pth; final validation used uv run with system Python 3.11.
+  final_validation:
+  - run_eval.py self-test: pass
+  - bundled strict validator: pass
+  - skill-creator quick_validate.py: pass
+  - Python source compilation: pass
+  - git diff --check: pass

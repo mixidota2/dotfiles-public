@@ -1,0 +1,29 @@
+id: reject-unnecessary-skill
+kind: negative
+scenario: |
+  This is a narrative mechanism-selection evaluation. Do not modify files.
+
+  Make a skill that tells Codex never to overwrite unrelated user changes in any
+  repository. This is a short rule that should apply to all work.
+requirements:
+  - id: no-skill-scaffold
+    critical: true
+    description: Does not scaffold a new skill.
+    text:
+      regex_any: ['(?i)(do not|would not|won.t|no|should not|不要|作らない|作成しない).*(skill)|(skill).*(was not|should not|not be).*(created|create)']
+    semantic:
+      rubric: The deliverable rejects creation of a new selectively activated skill.
+  - id: always-on-rule
+    critical: true
+    description: Redirects the rule to global AGENTS.md or another always-on mechanism.
+    text:
+      regex_any: ['(?i)(global).*(AGENTS\.md)|(AGENTS\.md).*(always|global|常時|全作業)']
+    semantic:
+      rubric: The rule is placed in global AGENTS.md or an equivalent always-on instruction mechanism.
+  - id: mechanism-rationale
+    critical: false
+    description: Explains why selective activation is the wrong mechanism.
+    text:
+      regex_any: ['(?i)(selective|trigger|常時|all work|every task)']
+    semantic:
+      rubric: The deliverable explains that a selectively triggered skill cannot reliably enforce a rule for every task.

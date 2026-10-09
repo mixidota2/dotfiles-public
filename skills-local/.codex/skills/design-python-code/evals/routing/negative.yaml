@@ -1,0 +1,15 @@
+kind: negative
+expected_activation: false
+cases:
+  - id: python-syntax
+    critical: false
+    prompt: このPython functionのSyntaxErrorを直して、対象testだけ実行して。
+  - id: package-install
+    critical: false
+    prompt: uvでrequestsを追加して、HTTP GETの書き方を教えて。
+  - id: data-analysis
+    critical: false
+    prompt: このCSVをPythonで集計し、売上の月次推移をグラフにして。
+  - id: format-python
+    critical: false
+    prompt: ruff formatでこのPython fileを整形して。

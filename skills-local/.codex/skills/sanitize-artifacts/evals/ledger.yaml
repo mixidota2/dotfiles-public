@@ -1,0 +1,627 @@
+skill: sanitize-artifacts
+decision:
+  status: accepted
+  mechanism: skill
+  rationale: Artifact sanitation is a reusable, selectively triggered revision workflow
+    whose value is preserving audience-facing requirements while removing production-process
+    residue. It is too detailed and task-specific for a global AGENTS.md rule and
+    cannot be enforced reliably by a deterministic text linter.
+  existing_skills_checked:
+  - documents:documents
+  - skill-creator
+  - create-validated-skill
+  overlap: documents:documents owns Word document editing and rendering, while sanitize-artifacts
+    is format-independent and only governs the content revision judgment. The skill
+    creation guides govern this package's creation rather than its runtime behavior.
+risk:
+  incorrect_deliverable_consequence: A sanitized artifact could leak internal production
+    context or remove a caveat its audience needs, but the output remains reviewable
+    before publication.
+  side_effect_authority: The workflow edits only artifacts the user placed in scope
+    and does not authorize publication or external writes.
+  reversibility: Local artifact revisions are reversible through the working tree
+    or source copy.
+  operational_reliance: Moderate; a user may publish the result after review.
+  distribution: Personal local skill.
+  tier: standard
+iterations:
+- id: routing-iteration-0
+  revision: user-provided implementation
+  run: 20260826T080032Z
+  result: failed
+  evidence: Positive and near-miss routing passed, but the EXIF metadata removal negative
+    case activated sanitize-artifacts.
+  failure: The description used generated artifacts and sanitize without limiting
+    the workflow to user-facing content revision.
+  change: Limited the description and activation guidance to user-facing content and
+    excluded file or media metadata, security sanitizers, data cleaning, and source-code
+    review.
+- id: baseline-comparison
+  revision: routing-boundary-fixed implementation
+  run: 20260826T075921Z
+  result: comparable
+  evidence: The with-skill and without-skill fresh executors both passed all three requirements for the representative onboarding-guide scenario.
+  failure: ''
+  change: Kept the skill because its explicit content classification, audience-caveat preservation, and artifact-first output contract provide repeatability across more complex iterative artifacts; avoided adding instructions for capabilities the baseline already demonstrated.
+- id: routing-iteration-1
+  revision: routing-boundary-fixed implementation
+  run: 20260826T080220Z
+  result: clear
+  evidence: Isolated positive activation was 1.0, while negative and near-miss false activation were both 0.0.
+  failure: ''
+  change: ''
+- id: behavior-regression
+  revision: routing-boundary-fixed implementation
+  run: 20260826T080305Z
+  result: clear
+  evidence: Typical, edge, and negative scenarios passed 3/3 tasks and 7/7 critical requirements with no unclear points or retries.
+  failure: ''
+  change: ''
+failure_patterns:
+- general_fix_rule: Distinguish revision of audience-facing artifact content from
+    technical sanitization of files, metadata, data, or code.
+  example_issue: An EXIF metadata removal request activated a skill intended to remove
+    conversation residue from prose deliverables.
+  seen_in:
+  - run: 20260826T080032Z
+    task: strip-image-metadata
+    trial: 1
+    source: routing
+automated_runs:
+- id: 20260826T075045Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260826T075045Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_summary:
+    with_skill:
+      trials: 3
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      average_duration_ms: 21944.333333333332
+      average_tool_uses: 1.0
+  baseline_delta: {}
+  behavior_trials:
+  - task: preserve-audience-safety-caveat
+    kind: edge
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/preserve-audience-safety-caveat/with_skill/trial-1/executor-output.json
+    events_path: behavior/preserve-audience-safety-caveat/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 21761
+    executor_tool_uses: 1
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: preserve-safety-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: remove-drafting-residue
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+    - id: requested-output-order
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-new-status-template
+    kind: negative
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-new-status-template/with_skill/trial-1/executor-output.json
+    events_path: behavior/create-new-status-template/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 23727
+    executor_tool_uses: 1
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: completes-new-artifact-request
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: sanitize-onboarding-guide
+    kind: typical
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/sanitize-onboarding-guide/with_skill/trial-1/executor-output.json
+    events_path: behavior/sanitize-onboarding-guide/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 20345
+    executor_tool_uses: 1
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: standalone-guide
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: remove-production-residue
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+    - id: artifact-first
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+- id: 20260826T075921Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260826T075921Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_summary:
+    with_skill:
+      trials: 1
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      average_duration_ms: 22700.0
+      average_tool_uses: 1.0
+    without_skill:
+      trials: 1
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      average_duration_ms: 12297.0
+      average_tool_uses: 0.0
+  baseline_delta:
+    task_pass_rate: 0.0
+    requirement_pass_rate: 0.0
+    average_duration_ms: 10403.0
+    average_tool_uses: 1.0
+  behavior_trials:
+  - task: sanitize-onboarding-guide
+    kind: typical
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/sanitize-onboarding-guide/with_skill/trial-1/executor-output.json
+    events_path: behavior/sanitize-onboarding-guide/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 22700
+    executor_tool_uses: 1
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: standalone-guide
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: remove-production-residue
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+    - id: artifact-first
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+  - task: sanitize-onboarding-guide
+    kind: typical
+    config: without_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/sanitize-onboarding-guide/without_skill/trial-1/executor-output.json
+    events_path: behavior/sanitize-onboarding-guide/without_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 12297
+    executor_tool_uses: 0
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: standalone-guide
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: remove-production-residue
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+    - id: artifact-first
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+- id: 20260826T080032Z
+  mode: routing
+  model: default
+  results_dir: evals/results/20260826T080032Z
+  routing_summary:
+    isolated:
+      positive:
+        trials: 1
+        activation_rate: 1.0
+        pass_rate: 1.0
+      negative:
+        trials: 1
+        activation_rate: 1.0
+        pass_rate: 0.0
+      near-miss:
+        trials: 1
+        activation_rate: 0.0
+        pass_rate: 1.0
+  routing_gates:
+    isolated:
+      checks:
+        executor_processes: true
+        critical_positive_activation: true
+        positive_activation_rate: true
+        negative_false_activation_rate: false
+        near_miss_false_activation_rate: true
+      pass: false
+  routing_trials:
+  - case: review-python-diff
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: strip-image-metadata
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: true
+    verdict: fail
+    exit_code: 0
+  - case: polish-generated-handbook
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  behavior_summary: {}
+  baseline_delta: {}
+  behavior_trials: []
+- id: 20260826T075129Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260826T075129Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_summary:
+    with_skill:
+      trials: 1
+      task_pass_rate: 0.0
+      requirement_pass_rate: 0.0
+      average_duration_ms: 300062.0
+      average_tool_uses: 0.0
+    without_skill:
+      trials: 1
+      task_pass_rate: 0.0
+      requirement_pass_rate: 0.0
+      average_duration_ms: 300067.0
+      average_tool_uses: 0.0
+  baseline_delta:
+    task_pass_rate: 0.0
+    requirement_pass_rate: 0.0
+    average_duration_ms: -5.0
+    average_tool_uses: 0.0
+  behavior_trials:
+  - task: sanitize-onboarding-guide
+    kind: typical
+    config: with_skill
+    trial: 1
+    verdict: fail
+    executor_exit_code: 124
+    semantic_exit_code: null
+    output_path: behavior/sanitize-onboarding-guide/with_skill/trial-1/executor-output.json
+    events_path: behavior/sanitize-onboarding-guide/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 300062
+    executor_tool_uses: 0
+    phase_status: {}
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: standalone-guide
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: unclear
+      evidence: missing semantic grade
+      general_fix_rule: ''
+    - id: remove-production-residue
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: unclear
+      evidence: missing semantic grade
+      general_fix_rule: ''
+    - id: artifact-first
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: unclear
+      evidence: missing semantic grade
+      general_fix_rule: ''
+  - task: sanitize-onboarding-guide
+    kind: typical
+    config: without_skill
+    trial: 1
+    verdict: fail
+    executor_exit_code: 124
+    semantic_exit_code: null
+    output_path: behavior/sanitize-onboarding-guide/without_skill/trial-1/executor-output.json
+    events_path: behavior/sanitize-onboarding-guide/without_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 300067
+    executor_tool_uses: 0
+    phase_status: {}
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: standalone-guide
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: unclear
+      evidence: missing semantic grade
+      general_fix_rule: ''
+    - id: remove-production-residue
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: unclear
+      evidence: missing semantic grade
+      general_fix_rule: ''
+    - id: artifact-first
+      critical: true
+      combined_verdict: unclear
+      text_verdict: fail
+      semantic_verdict: unclear
+      evidence: missing semantic grade
+      general_fix_rule: ''
+- id: 20260826T080220Z
+  mode: routing
+  model: default
+  results_dir: evals/results/20260826T080220Z
+  routing_summary:
+    isolated:
+      positive:
+        trials: 1
+        activation_rate: 1.0
+        pass_rate: 1.0
+      negative:
+        trials: 1
+        activation_rate: 0.0
+        pass_rate: 1.0
+      near-miss:
+        trials: 1
+        activation_rate: 0.0
+        pass_rate: 1.0
+  routing_gates:
+    isolated:
+      checks:
+        executor_processes: true
+        critical_positive_activation: true
+        positive_activation_rate: true
+        negative_false_activation_rate: true
+        near_miss_false_activation_rate: true
+      pass: true
+  routing_trials:
+  - case: review-python-diff
+    kind: near-miss
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: strip-image-metadata
+    kind: negative
+    critical: false
+    profile: isolated
+    trial: 1
+    expected_activation: false
+    observed_activation: false
+    verdict: pass
+    exit_code: 0
+  - case: polish-generated-handbook
+    kind: positive
+    critical: true
+    profile: isolated
+    trial: 1
+    expected_activation: true
+    observed_activation: true
+    verdict: pass
+    exit_code: 0
+  behavior_summary: {}
+  baseline_delta: {}
+  behavior_trials: []
+- id: 20260826T080305Z
+  mode: behavior
+  model: default
+  results_dir: evals/results/20260826T080305Z
+  routing_summary: {}
+  routing_gates: {}
+  routing_trials: []
+  behavior_summary:
+    with_skill:
+      trials: 3
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      average_duration_ms: 21367.666666666668
+      average_tool_uses: 1.0
+  baseline_delta: {}
+  behavior_trials:
+  - task: preserve-audience-safety-caveat
+    kind: edge
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/preserve-audience-safety-caveat/with_skill/trial-1/executor-output.json
+    events_path: behavior/preserve-audience-safety-caveat/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 21728
+    executor_tool_uses: 1
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: preserve-safety-contract
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: remove-drafting-residue
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+    - id: requested-output-order
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: create-new-status-template
+    kind: negative
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/create-new-status-template/with_skill/trial-1/executor-output.json
+    events_path: behavior/create-new-status-template/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 22783
+    executor_tool_uses: 1
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: completes-new-artifact-request
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+  - task: sanitize-onboarding-guide
+    kind: typical
+    config: with_skill
+    trial: 1
+    verdict: pass
+    executor_exit_code: 0
+    semantic_exit_code: 0
+    output_path: behavior/sanitize-onboarding-guide/with_skill/trial-1/executor-output.json
+    events_path: behavior/sanitize-onboarding-guide/with_skill/trial-1/executor-events.jsonl
+    executor_duration_ms: 19592
+    executor_tool_uses: 1
+    phase_status:
+      understanding: ok
+      planning: ok
+      execution: ok
+      formatting: ok
+    unclear_points: []
+    retry_count: 0
+    requirements:
+    - id: standalone-guide
+      critical: true
+      combined_verdict: pass
+      text_verdict: pass
+      semantic_verdict: pass
+    - id: remove-production-residue
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+    - id: artifact-first
+      critical: true
+      combined_verdict: pass
+      text_verdict: fail
+      semantic_verdict: pass
+final:
+  status: pass
+  tier: standard
+  unrun_checks:
+    - Normal-profile routing was not run because no installed sibling skill has a plausible competing trigger after the explicit exclusions.
+    - Deep-tier repeated trials and a holdout were not run because this is a personal, local, reversible content-revision skill.
+  evidence:
+    static_validation:
+      system_quick_validate: pass
+      bundled_validate_skill: pass
+    behavior:
+      initial_clear_run: 20260826T075045Z
+      final_regression_run: 20260826T080305Z
+      scenarios: typical, edge, negative
+      task_pass_rate: 1.0
+      requirement_pass_rate: 1.0
+      critical_failures: 0
+      deterministic_unclear_points: 0
+    baseline:
+      run: 20260826T075921Z
+      scenario: sanitize-onboarding-guide
+      result: comparable
+      recorded_value: Repeatable content classification, preservation of audience-facing caveats, and artifact-first output across iterative artifacts.
+    routing:
+      failed_run: 20260826T080032Z
+      clear_run: 20260826T080220Z
+      profile: isolated
+      positive_activation_rate: 1.0
+      negative_false_activation_rate: 0.0
+      near_miss_false_activation_rate: 0.0
+  limitations:
+    - The representative no-skill baseline was equally successful on the simple typical scenario; the measured value is repeatability and constraint preservation rather than exclusive capability.
+    - Two interrupted baseline attempts in the automated run history failed because sandboxed executors lacked DNS access; the successful network-enabled paired run supersedes them.

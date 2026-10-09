@@ -1,0 +1,6 @@
+kind: near-miss
+expected_activation: false
+cases:
+  - id: TODO-near-miss-case
+    critical: false
+    prompt: TODO Add an adjacent request that belongs to another mechanism.

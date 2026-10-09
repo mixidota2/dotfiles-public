@@ -1,0 +1,7 @@
+kind: positive
+expected_activation: true
+cases:
+  - id: revise-skill-workflow
+    critical: true
+    prompt: |
+      既存のdeployment-review SKILL.mdはロールアウト確認が不足している。手順と発火条件を修正し、変更後のskillを検証して。

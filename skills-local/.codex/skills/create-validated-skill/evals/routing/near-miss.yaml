@@ -1,0 +1,6 @@
+kind: near-miss
+expected_activation: false
+cases:
+  - id: fix-skill-typo-only
+    critical: false
+    prompt: このSKILL.mdのtypoを1文字だけ直して。発火条件や手順は変えないで。

@@ -1,0 +1,62 @@
+id: falsify-local-but-invalid-candidate
+kind: typical
+scenario: |
+  利用量CSVから集計レポートを作るPython libraryの構成案をレビューし、必要なら最小限直してください。実装はまだ行いません。次は仕様と候補コードを確認した記録です。この記録の範囲で判断してください。
+
+  利用者はCLIと夜間jobから同じ集計を呼びます。業務ruleは「billableな行のunitsを合計する」だけです。外部公開契約は`from usage import build_report`、引数はRowの列、戻り値はReport、負のunitsはValueErrorです。library importと集計はcloud SDKなしのoffline環境でも動く必要があります。CLIはJSONファイルへ保存し、jobだけが現在一つのcloud保存先へ送ります。変更予定はbillable条件変更、第二の対話UI追加、cloud SDK交換です。新しい保存providerの同時利用予定はありません。永続的な業務状態、DB、transaction、再試行機能はありません。cloud保存失敗はjobが失敗として返し、自動再試行しません。
+
+  候補の全moduleと関係:
+  - `usage/__init__.py`: `.report`から`build_report`をre-export。
+  - `usage/types.py`: RowとReportの標準library dataclass。外部importなし。
+  - `usage/policy.py`: `.types`をimportし`is_billable(row)`と負値の検証を定義。
+  - `usage/report.py`: `.types`、`.policy`、`.formats`をimport。`build_report`が検証・filter・集計し、`.formats.make_report(total)`を呼ぶ。
+  - `usage/formats.py`: `.types`と`.storage`から`StorageRecord`をimport。`make_report`はReportを返すが、共有type aliasのためにStorageRecordも公開。
+  - `usage/storage.py`: module top levelで`cloud_sdk`をimportし、StorageRecordと`upload(report, client)`を定義。uploadはSDK例外をそのまま返す。
+  - `usage/gateway.py`: `.report`をimportし、`run(rows)`が`build_report(rows)`をそのまま返すだけ。
+  - `usage/cli.py`: `.gateway`をimport。引数・CSVの読込→gateway.run→標準libraryによるJSON保存。既存の`Settings.from_env()`から出力先を受け取る。
+  - `usage/job.py`: `.types`と`.storage`をimport。CSVの読込→`if row.billable`と負値検証をここにも実装して集計→Report構築→storage.upload。既存の`make_client(settings)`でclientを作り注入。
+
+  `Settings.from_env()`と`make_client(settings)`は既存方式として維持します。別の設定loaderやDI containerは不要です。今回の変更対象外の`metrics.py`には他の人の未commit変更があります。
+
+  候補作者は「billable条件はpolicy.py内だけで変えられ、SDK交換はstorage.py内だけなので、この構成で決まり」と考えています。tree、責務・非責務、公開面、依存、変更の影響、検証方法を含む判断を出してください。
+requirements:
+  - id: falsify-and-reevaluate
+    critical: true
+    description: 初期候補の具体的な失敗を示し、修正後に同じ10観点を根拠付きで再評価する。
+    text:
+      required: false
+      regex_any: ['(?i)(Revise|再評価|修正|反証)']
+    semantic:
+      rubric: The output rejects concrete defects in the starting candidate, revises the proposal, and evaluates the revised candidate against the same ten dimensions (Coverage, Ownership, Cohesion, Dependency, Abstraction necessity, Orchestration, Changeability, Cognitive load, Evidence, Simplicity) with separate evidence-linked Pass/Revise/N/A conclusions. It does not merely add an all-pass checklist to the unchanged candidate.
+  - id: transitive-entrypoint-traces
+    critical: true
+    description: 各入口と公開importからSDKまでの推移的漏出を見つけ、修正後の経路とfailure ownerを示す。
+    text:
+      required: false
+      regex_any: ['(?i)(formats|storage|cloud_sdk|推移|trace)']
+    semantic:
+      rubric: The result traces CLI, job, and the public facade to results and side effects, catches the report->formats->storage->cloud_sdk import dependency violating offline use, and makes the revised import graph SDK-free for library/CLI use. Runtime injection is distinguished from source imports, with job upload failure ownership preserved.
+  - id: unique-rule-owner
+    critical: true
+    description: jobにも存在する集計判断を見落とさず、両入口が同じruleと検証を利用する構成へ直す。
+    text:
+      required: false
+      regex_any: ['(?i)(job|policy|重複|共通)']
+    semantic:
+      rubric: The revised structure has one authoritative validation/filter/aggregation behavior called by both CLI and job; it does not claim the original policy-only change was local while leaving duplicated job logic.
+  - id: every-new-boundary-counterfactual
+    critical: true
+    description: 新設・再構成する全境界をMergeとDeleteの両方で説明し、不要な転送や抽象化を減らす。
+    text:
+      required: false
+      regex_any: ['(?i)(Merge|Delete|統合|削除)']
+    semantic:
+      rubric: Every newly proposed package/module/interface boundary is explicitly covered by both merge and delete counterfactuals, with traceable reasons to retain or remove it. The redundant gateway is reconsidered rather than defended by a pattern label, and unnecessary registry/Protocol/layers are not mandated.
+  - id: diverse-changes-and-deliverable
+    critical: true
+    description: 異なる変更軸と境界本来の設計出力を維持する。
+    text:
+      required: false
+      regex_any: ['(?i)(UI|SDK|公開|非責務|非波及)']
+    semantic:
+      rubric: The answer gives a concrete minimal structure, responsibilities/exclusions, public API and tradeoffs; distinct rule change, new consumer and SDK replacement scenarios include changed and protected modules. It preserves the given public import, existing Settings/client injection, and no-edit scope including unrelated metrics.py.

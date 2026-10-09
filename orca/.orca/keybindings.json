@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "keybindings": {},
+  "platforms": {
+    "darwin": {
+      "workspace.create": ["Mod+N", "Mod+Shift+N"],
+      "workspace.delete": ["Mod+Shift+Backspace"],
+      "worktree.navigateUp": ["Mod+Shift+ArrowUp"],
+      "worktree.navigateDown": ["Mod+Shift+ArrowDown"],
+      "tab.newTerminal": ["Mod+T"],
+      "tab.newBrowser": ["Mod+Shift+B"],
+      "tab.close": ["Mod+W"],
+      "tab.nextAllTypes": ["Mod+Shift+ArrowRight", "Mod+Shift+BracketRight"],
+      "tab.previousAllTypes": ["Mod+Shift+ArrowLeft", "Mod+Shift+BracketLeft"],
+      "tab.selectByIndex": ["Ctrl+1"],
+      "terminal.closePane": ["Mod+Shift+W"],
+      "terminal.splitRight": ["Mod+D"],
+      "terminal.splitDown": ["Mod+Shift+D"],
+      "terminal.focusNextPane": ["Mod+Alt+ArrowRight", "Mod+Alt+ArrowDown"],
+      "terminal.focusPreviousPane": ["Mod+Alt+ArrowLeft", "Mod+Alt+ArrowUp"]
+    },
+    "linux": {},
+    "win32": {}
+  }
+}

@@ -1,0 +1,53 @@
+id: preserve-framework-and-public-api
+kind: edge
+scenario: |
+  FastAPIとSQLAlchemyを使う既存Pythonサービスの`services.py`を分割する前に、コードを変更せず具体的な構成案・移行手順・検証方法を出してください。確認済みの現行構成は次です。
+
+  ```text
+  app/__init__.py       `from .services import create_order`で公開
+  app/config.py         `Settings.from_env()`が環境変数を読む唯一の場所
+  app/dependencies.py   `get_session()`と`get_settings()`をFastAPIへ提供
+  app/services.py       create_order、calculate_total、SQLAlchemy保存処理を含む
+  app/api.py            `Depends(get_session)`と`Depends(get_settings)`を使う
+  tests/test_orders.py
+  tests/test_public_api.py
+  app/reporting.py      他人の未commit変更あり、今回の対象外
+  ```
+
+  外部clientが利用する`from app import create_order`は壊せません。既存の環境変数読込とDI方式も変更できません。`reporting.py`へ触れず、最小分割案を設計してください。
+requirements:
+  - id: preserve-contract
+    critical: true
+    description: "`from app import create_order`を維持する具体的な公開facadeと互換性testを提案する。"
+    text:
+      regex_any: ['(from app import create_order|__init__|公開契約|互換)']
+    semantic:
+      rubric: The proposal concretely preserves the documented import contract through the package facade and includes a verification method.
+  - id: reuse-existing-injection
+    critical: true
+    description: "`Settings.from_env()`、`get_session()`、`get_settings()`を再利用し、設定・DIを重複させない。"
+    text:
+      regex_any: ['(Settings\.from_env|get_session|get_settings|DI|設定注入)']
+    semantic:
+      rubric: The design reuses the stated configuration and dependency injection entry points without introducing duplicate environment reads or a new container.
+  - id: protect-unrelated-changes
+    critical: true
+    description: "`reporting.py`を対象外として移行手順と差分範囲から除外する。"
+    text:
+      regex_any: ['(reporting\.py|未commit|未コミット|対象外|触れない)']
+    semantic:
+      rubric: The plan explicitly protects reporting.py and confines the proposed change set to the requested order-service decomposition.
+  - id: validate-boundary
+    critical: true
+    description: 公開import、注文behavior、repository既定の品質checkを含む検証計画を示す。
+    text:
+      regex_any: ['(?i)(import.*test|test_public_api|test_orders|lint|type check|品質)']
+    semantic:
+      rubric: The validation plan covers the public import, order behavior, and applicable repository-defined lint or type checks.
+  - id: avoid-framework-leak
+    critical: false
+    description: 金額計算と業務判断をFastAPI・SQLAlchemy固有処理から分け、依存方向を示す。
+    text:
+      regex_any: ['(?i)(FastAPI|SQLAlchemy|framework|依存方向|calculate_total)']
+    semantic:
+      rubric: The proposal separates business calculation/decisions from FastAPI and SQLAlchemy details and states an intelligible dependency direction.

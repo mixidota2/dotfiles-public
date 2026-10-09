@@ -1,0 +1,24 @@
+name: TODO-skill-name
+version: 2
+tier: standard
+trials_per_task: 1
+tasks:
+  - tasks/typical.yaml
+  - tasks/edge.yaml
+  - tasks/negative.yaml
+routing:
+  profiles:
+    - isolated
+  trials_per_case: 1
+  cases:
+    - routing/positive.yaml
+    - routing/negative.yaml
+    - routing/near-miss.yaml
+  thresholds:
+    critical_positive_activation_rate: 1.0
+    positive_activation_rate: 0.9
+    negative_false_activation_rate: 0.05
+    near_miss_false_activation_rate: 0.1
+completion:
+  critical_requirements: all
+  deterministic_unclear_points: 0

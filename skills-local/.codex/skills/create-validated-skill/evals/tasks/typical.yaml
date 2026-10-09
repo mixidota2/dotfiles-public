@@ -1,0 +1,53 @@
+id: create-domain-skill
+kind: typical
+scenario: |
+  This is a narrative design evaluation with hypothetical repository inputs. Do
+  not modify files. Give the exact implementation, validation, and completion
+  workflow you would follow, and do not claim that hypothetical commands ran.
+
+  Create a reusable Codex skill for diagnosing Acme warehouse freshness incidents.
+  It should use the repository's existing diagnostic script and table reference.
+  Put the skill in the provided local skills directory and finish the work.
+requirements:
+  - id: overlap-check
+    critical: true
+    description: Searches for overlapping skills before creating a new skill.
+    text:
+      regex_any: ['(?i)(overlap|duplicate|existing skill|既存.*skill|重複)']
+    semantic:
+      rubric: The proposed workflow explicitly checks installed or repository-local skills for overlap before creation.
+  - id: outcome-first-scenarios
+    critical: true
+    description: Defines realistic task scenarios and observable outcome requirements before routing tests.
+    text:
+      regex_any: ['(?i)(typical|median|edge|scenario|シナリオ).*(critical|requirement|outcome|成果物|要件)']
+    semantic:
+      rubric: The workflow starts validation from realistic user tasks and observable deliverable requirements rather than routing rates.
+  - id: behavioral-evaluation
+    critical: true
+    description: Requires fixed scenarios and fresh-agent validation before completion.
+    text:
+      regex_any: ['(?i)(fresh|isolated|blank.?slate).*(agent|executor).*(scenario|trial|eval)']
+    semantic:
+      rubric: The completion workflow requires observable typical, edge, and negative scenarios executed by fresh agents before declaring success.
+  - id: baseline-value
+    critical: true
+    description: Compares the same representative task with and without the skill and evaluates the outcome delta.
+    text:
+      regex_any: ['(?i)(with.?skill|without.?skill|baseline|スキルあり|スキルなし).*(delta|比較|差|requirement|要件)']
+    semantic:
+      rubric: The workflow runs the same representative scenario with and without the skill, grades both against the same requirements, and uses the delta to judge whether the skill earns its cost.
+  - id: routing-after-value
+    critical: false
+    description: Treats routing as a proportionate smoke test after task value is established.
+    text:
+      regex_any: ['(?i)(routing|trigger|発火).*(smoke|after|後|proportion|必要.*範囲|1 trial|一回)']
+    semantic:
+      rubric: Routing is tested after behavioral value and is limited to a small risk-proportional smoke suite rather than dominating the evaluation.
+  - id: canonical-resource-reuse
+    critical: false
+    description: Reuses existing scripts and references instead of duplicating them.
+    text:
+      regex_any: ['(?i)(reuse|canonical|source of truth|再利用|正本)']
+    semantic:
+      rubric: The proposed implementation keeps the existing diagnostic script and table reference canonical and reuses rather than copies them.

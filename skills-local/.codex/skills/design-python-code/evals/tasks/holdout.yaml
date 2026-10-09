@@ -1,0 +1,26 @@
+id: holdout-library-flat-layout
+kind: holdout
+scenario: |
+  小規模なPython HTTP client libraryで、package直下に`client.py`、`request.py`、`response.py`、`auth.py`、`transport.py`、`exceptions.py`があります。今後OAuth認証方式が一つ増える予定です。subpackageへ分けるべきかレビューし、必要なら最小の構成変更を提案してください。実装はしないでください。
+requirements:
+  - id: allow-flat-result
+    critical: true
+    description: file数だけで分割せず、flat構造を維持する案も実質的に評価する。
+    text:
+      regex_any: ['(?i)(flat|フラット|維持|分けない|file数)']
+    semantic:
+      rubric: The review evaluates whether the cohesive flat package should remain flat rather than assuming subpackages are inherently better.
+  - id: oauth-variation
+    critical: true
+    description: OAuth追加という具体的variationを使ってauth境界と変更局所性を評価する。
+    text:
+      regex_any: ['(?i)(OAuth|auth|variation|変更局所)']
+    semantic:
+      rubric: The proposal uses the concrete OAuth variation to decide whether an auth boundary is warranted and where changes should localize.
+  - id: no-implementation
+    critical: true
+    description: reviewと提案に留め、実装しない。
+    text:
+      regex_any: ['(実装しない|変更していません|提案|レビュー)']
+    semantic:
+      rubric: The executor does not edit code and clearly limits the outcome to review and proposal.

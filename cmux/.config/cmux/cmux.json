@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+
+  "app": {
+    "appearance": "dark",
+    "reorderOnNotification": false,
+    "sendAnonymousTelemetry": false
+  },
+
+  "notifications": {
+    "dockBadge": false
+  },
+
+  "browser": {
+    "theme": "dark"
+  },
+
+  "shortcuts": {
+    "bindings": {
+      "nextSidebarTab": "cmd+shift+down",
+      "nextSurface": "cmd+shift+right",
+      "prevSidebarTab": "cmd+shift+up",
+      "prevSurface": "cmd+shift+left"
+    }
+  }
+}

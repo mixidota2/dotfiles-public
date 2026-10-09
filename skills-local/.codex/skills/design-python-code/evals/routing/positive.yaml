@@ -1,0 +1,15 @@
+kind: positive
+expected_activation: true
+cases:
+  - id: redesign-flat-package
+    critical: true
+    prompt: Python package直下に30個の.pyが増えたので、責務と依存方向から分割案を設計して。
+  - id: review-python-boundaries
+    critical: true
+    prompt: このPython PRのmodule境界が妥当か、SRPと変更局所性の観点でレビューして。
+  - id: decide-protocol
+    critical: false
+    prompt: Pythonで外部決済SDKを包むProtocolを作るべきか、既存コードを調べて実装案を出して。
+  - id: place-new-feature
+    critical: false
+    prompt: 新しいPythonのバッチ機能を既存packageのどこへ置くべきか、依存関係も含めて決めて実装して。

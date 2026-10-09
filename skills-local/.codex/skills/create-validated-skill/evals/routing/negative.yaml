@@ -1,0 +1,6 @@
+kind: negative
+expected_activation: false
+cases:
+  - id: edit-python-function
+    critical: false
+    prompt: このPython関数の例外処理を修正してテストして。

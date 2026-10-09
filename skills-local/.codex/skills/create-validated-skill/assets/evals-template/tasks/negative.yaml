@@ -1,0 +1,12 @@
+id: negative
+kind: negative
+scenario: |
+  TODO Add an unrelated or near-miss request that should not use this skill.
+requirements:
+  - id: TODO-requirement-id
+    critical: true
+    description: TODO State the expected rejection, redirection, or non-activation.
+    text:
+      regex_any: ['TODO broad surface regex']
+    semantic:
+      rubric: TODO Add a semantic judgment rule.

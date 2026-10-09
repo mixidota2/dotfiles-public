@@ -1,0 +1,74 @@
+[
+  {
+    "id": "indexing-ownership",
+    "scenario": "Pythonのローカル文書検索サービスの設計をレビューしてください。コードはまだ変更せず、下の案を必要に応じて直し、採用する最小構成、移行手順、検証方法を出してください。\n\n利用者はCLIまたはHTTP APIでディレクトリを指定して索引を更新します。document_idはrootからの相対pathを正規化して一意化します。同じ文書を再実行しても索引に重複を作りません。CLIとAPIには同じdocument_id規則と失敗結果を返す必要があります。既存公開APIは indexkit.index_directory(root, repository, parser) です。repositoryとparserはcallerから渡します。設定読込とDIを変える予定はありません。\n\n現行の確認済み処理:\n- cli.pyとapi.pyはservices.pyのindex_directoryを呼ぶ。\n- services.pyはpathを列挙し、ID正規化、本文読込、parser呼出、repository.upsert(id,text,metadata)を行う。\n- storage.pyのSqliteRepositoryは保存時にも別実装のID正規化を行う。\n- parser.pyはstrを入力して解析結果を返す純粋関数。\n- 比較的小さく、SQLite以外の保存先は当面追加予定がない。現在のtestsはCLI/API共通結果、安定したID、再実行時の重複防止、parser単体を検証する。\n\n同僚の案:\nindexkit/api.py、cli.py → orchestration.py → application/index_service.py → managers/document_manager.py → repositories/document_repository.py → storage/sqlite_repository.py\napplication/index_service.pyはindex_directoryを受けてDocumentManager.index_directoryへ渡すだけです。DocumentManagerは文書のIDと解析済み本文を所有します。DocumentRepositoryも同じIDと本文を保管し、再正規化してからSqliteRepositoryへ転送します。別途 domain/document.py がID正規化と文書状態を所有します。今後のため、全manager、repository、parserにProtocolとFactoryを置く案です。\n\n今後確実な変更はID規則の修正、Markdown解析の修正、CLI出力形式の修正です。現行公開APIとcallerによる注入を維持してください。",
+    "requirements": [
+      {
+        "id": "single-id-authority",
+        "critical": true,
+        "description": "ID規則・文書状態の重複ownerを具体的に検出し、一つの意味上のownerへ収束させる。"
+      },
+      {
+        "id": "challenge-pass-through",
+        "critical": true,
+        "description": "提示されたpass-through層を名前ではなく責務で評価し、意味がないmanager/repository/serviceの削除または統合を具体的に提案する。"
+      },
+      {
+        "id": "no-speculative-abstraction",
+        "critical": true,
+        "description": "実在しない複数backend等のためにProtocol/Factory層を一律採用しない。"
+      },
+      {
+        "id": "preserve-public-di",
+        "critical": true,
+        "description": "indexkit.index_directory(root, repository, parser)とcaller注入を維持する。"
+      },
+      {
+        "id": "revise-reevaluate",
+        "critical": true,
+        "description": "元案の問題を修正し、ID規則・parser・CLI表示変更の変更先と非波及先で修正後を再評価する。"
+      },
+      {
+        "id": "evidence-ten-dimensions",
+        "critical": true,
+        "description": "意味上の十観点を証拠付きでPass/Revise/N/Aまたは等価な判定へ結び付け、未確認事項を合格扱いしない。"
+      },
+      {
+        "id": "no-code-edit",
+        "critical": true,
+        "description": "設計レビューだけ行いraw sourceを変更しない。"
+      }
+    ]
+  },
+  {
+    "id": "tiny-flat-parser",
+    "scenario": "次の小さなPython packageの構成をレビューしてください。コードは変更しないでください。将来の機能追加予定は今はありません。今の規模で本当に必要な変更だけ提案してください。\n\nkvparse/__init__.py:\nfrom .parser import parse_pairs\n__all__ = [\"parse_pairs\"]\n\nkvparse/parser.py:\ndef parse_pairs(text: str) -> dict[str, str]:\n    pairs = {}\n    for raw in text.splitlines():\n        line = raw.strip()\n        if not line or line.startswith(\"#\"):\n            continue\n        key, sep, value = line.partition(\"=\")\n        key = key.strip()\n        if not sep or not key or key in pairs:\n            raise ValueError(\"invalid or duplicate key\")\n        pairs[key] = value.strip()\n    return pairs\n\nkvparse/cli.py:\nimport argparse\nfrom pathlib import Path\nfrom . import parse_pairs\n\ndef main():\n    args = argparse.ArgumentParser()\n    args.add_argument(\"path\")\n    path = args.parse_args().path\n    print(parse_pairs(Path(path).read_text()))\n\ntests/test_parser.pyで空行、コメント、空key、重複key、値内の=、Unicodeを検証しています。外部依存なし、永続状態なし、ネットワークなし。公開APIはfrom kvparse import parse_pairsです。CLIだけがファイルを読みます。",
+    "requirements": [
+      {
+        "id": "retain-flat",
+        "critical": true,
+        "description": "現行flat構造を妥当として維持し、不要なpackage/class/Protocol/pluginを増やさない。"
+      },
+      {
+        "id": "no-forced-revision",
+        "critical": true,
+        "description": "失敗を捏造せず、改善が不要ならPassを許容して終了する。"
+      },
+      {
+        "id": "public-pure-boundary",
+        "critical": true,
+        "description": "公開parse_pairsとI/OをCLIへ留める境界を維持する。"
+      },
+      {
+        "id": "proportionate-evidence",
+        "critical": true,
+        "description": "codeから確かめられる不変条件や依存に基づいて評価し、状態・外部I/O等非該当観点には理由を示す。"
+      },
+      {
+        "id": "no-code-edit",
+        "critical": true,
+        "description": "実装変更を行わない。"
+      }
+    ]
+  }
+]

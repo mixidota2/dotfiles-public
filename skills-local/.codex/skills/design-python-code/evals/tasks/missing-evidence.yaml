@@ -1,0 +1,39 @@
+id: keep-missing-evidence-provisional
+kind: edge
+scenario: |
+  Pythonの在庫集計libraryをpackage化する案を設計レビューしてください。今は`inventory.py`に`available_qty`と`reserve`があり、外部consumerは`from stock import reserve`を使っています。案は`queries.py`と`commands.py`へ二分して`stock/__init__.py`でre-exportするものです。「参照の変更はqueriesだけ、予約の変更はcommandsだけに閉じる」と説明されています。実装は行わず、今分かる範囲で有用な判断と次に確認すべきことを出してください。
+
+  提供できるのはここまでです。reserveが状態をどこへ保存するか、available_qtyと同じ在庫sourceを使うか、誰が同時予約を防ぐか、entrypointやcallerがほかにあるか、例外とretry契約はまだ確認できていません。repositoryファイルはこの依頼には添付していません。
+requirements:
+  - id: no-false-pass
+    critical: true
+    description: 欠けた責務・状態・依存を捏造せず、影響する判定はRevise（未確認）に残す。
+    text:
+      required: false
+      regex_any: ['(?i)(Revise|未確認|暫定|証拠)']
+    semantic:
+      rubric: The output does not invent a database, transaction owner, concurrency guarantee, callers or dependency graph. Affected ownership, coverage, orchestration, dependency and evidence judgments remain explicitly unresolved/Revise rather than Pass or N/A; the candidate is not presented as verified or finally recommended.
+  - id: useful-bounded-analysis
+    critical: true
+    description: 全情報待ちで停止せず、確認済み契約と最小の追加調査から条件付き案を示す。
+    text:
+      required: false
+      regex_any: ['(?i)(reserve|公開|確認|仮定)']
+    semantic:
+      rubric: The result provides useful conditional design analysis preserving the public reserve import, distinguishes known facts, assumptions and proposals, identifies the smallest decisive evidence to obtain next, and stops without endless loops or claiming tests ran.
+  - id: trace-and-counterfactual-limits
+    critical: true
+    description: 提案境界のMerge/Deleteと入口traceを可能な範囲で行い、不明な辺を明記する。
+    text:
+      required: false
+      regex_any: ['(?i)(Merge|Delete|統合|削除|不明|trace)']
+    semantic:
+      rubric: Both proposed query/command boundaries are considered through merge and delete counterfactuals, and the known public entrypoint is traced as far as evidence allows with missing transitive dependencies and failure owners explicitly marked. It does not use absent evidence to prove the split necessary or safe.
+  - id: same-rubric-and-read-only
+    critical: true
+    description: 10観点の根拠付き判定を保ち、未確認を修正済みとせずread-onlyを守る。
+    text:
+      required: false
+      regex_any: ['(?i)(Coverage|Ownership|Cohesion|Dependency|read.only|変更)']
+    semantic:
+      rubric: All ten design dimensions have separate evidence-linked judgments; hypothetical revisions use the same criteria without laundering missing facts into success. The answer remains a read-only review and does not assert project edits or completed implementation checks.

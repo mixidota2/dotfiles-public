@@ -1,0 +1,6 @@
+kind: negative
+expected_activation: false
+cases:
+  - id: strip-image-metadata
+    critical: false
+    prompt: Remove EXIF metadata from the generated image artifacts in the dist directory.

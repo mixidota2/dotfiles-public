@@ -1,0 +1,82 @@
+{
+  "run_id": "v2-r2-tiny-flat-parser-t2",
+  "case": "tiny-flat-parser",
+  "configuration": "with_skill",
+  "candidate_version": "v2",
+  "candidate_freeze_hash": "88404f9700a96b64bad6702493ff0af350bc25b14dc442e06952e38f446db32c",
+  "critical_success": true,
+  "passed": 5,
+  "total": 5,
+  "deliverable_sha256": "e5975ed866b22af7065a85c40939fadf28d3cc4eb86da42035f2a5b57f0c8098",
+  "deliverable": "examples/v2-r2-tiny-flat-parser-t2/deliverable.md",
+  "full_artifact_status": "included_verbatim",
+  "requirements": [
+    {
+      "id": "retain-flat",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "3,5-24",
+      "reason": "Keeps existing flat modules and pure function; rejects unnecessary classes/Protocol/layers."
+    },
+    {
+      "id": "no-forced-revision",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "33-45,66-70",
+      "reason": "Initial adequate candidate needs no forced revision; unknown CLI registration is not invented as a defect."
+    },
+    {
+      "id": "public-pure-boundary",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "18-31",
+      "reason": "Exact public import and pure parser/I-O CLI boundary with appropriate error ownership retained."
+    },
+    {
+      "id": "proportionate-evidence",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "19-31,49-64",
+      "reason": "Concrete local-state/source facts and ten scoped judgments; absent persistence/transaction/provider mechanisms not invented."
+    },
+    {
+      "id": "no-code-edit",
+      "critical": true,
+      "verdict": "pass",
+      "lines": "3,68-70; input hash check",
+      "reason": "Review-only, no source edits or executed tests; complete persisted artifact recovered without repeating executor."
+    }
+  ],
+  "supporting_text": [
+    {
+      "id": "retain-flat",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "no-forced-revision",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "public-pure-boundary",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "proportionate-evidence",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    },
+    {
+      "id": "no-code-edit",
+      "required": false,
+      "verdict": "not_configured",
+      "patterns": []
+    }
+  ]
+}

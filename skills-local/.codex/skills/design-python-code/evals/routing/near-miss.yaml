@@ -1,0 +1,15 @@
+kind: near-miss
+expected_activation: false
+cases:
+  - id: design-doc-system
+    critical: false
+    prompt: Pythonも含む新しいMLパイプライン全体について、関係チーム合意用のDesign Docを書いて。
+  - id: global-rule
+    critical: false
+    prompt: このrepositoryではPython testを必ずuv経由で実行するという全体ルールをAGENTS.mdへ追加して。
+  - id: import-linter-only
+    critical: false
+    prompt: 現在合意済みの依存ルールを機械的に強制するimport-linter設定だけ追加して。
+  - id: explain-pattern
+    critical: false
+    prompt: Strategyパターンとは何か、Pythonの短い例で説明して。

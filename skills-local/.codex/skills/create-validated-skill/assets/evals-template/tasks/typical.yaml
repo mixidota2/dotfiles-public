@@ -1,0 +1,12 @@
+id: typical
+kind: typical
+scenario: |
+  TODO Add a representative user request without revealing the expected answer.
+requirements:
+  - id: TODO-requirement-id
+    critical: true
+    description: TODO Add an observable required outcome.
+    text:
+      regex_any: ['TODO broad surface regex']
+    semantic:
+      rubric: TODO Add a semantic judgment rule.

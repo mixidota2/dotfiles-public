@@ -1,0 +1,4 @@
+interface:
+  display_name: "Python Code Design"
+  short_description: "Pythonの責務境界、配置、依存方向を設計・レビュー"
+  default_prompt: "$design-python-code を使って、このPythonコードの構造を変更シナリオと責務境界から設計またはレビューしてください。"
