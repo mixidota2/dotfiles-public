@@ -6,8 +6,8 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
-# tk usage instructions maintained alongside tasukura.
-npx skills add mixidota2/tasukura \
+# tk usage instructions live in the standalone skills repository.
+npx skills add mixidota2/tasukura-skills \
   --global --agent codex --copy --yes --skill tk
 
-printf 'tk skill installed. Pi reads the same skills through ~/.pi/agent/skills.\n'
+printf 'tk skill installed.\n'

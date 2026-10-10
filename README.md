@@ -24,7 +24,9 @@ Install Homebrew dependencies and user-level CLI tools on a fresh machine with:
 ./install.sh --tools
 ```
 
-Restore external skills separately:
+Homebrew must already be installed. Add `--dry-run` to preview tool commands; `uv` can be absent during the preview because the Brewfile provides it.
+
+Restore the external [tk skill](https://github.com/mixidota2/tasukura-skills) separately (requires `npx`):
 
 ```sh
 ./skills/install.sh
@@ -35,6 +37,8 @@ Restore external skills separately:
 Files in this repository are the source of truth. Paths such as `~/.config/wezterm/wezterm.lua` are symbolic links into this repository, so normal edits appear directly in `git diff`.
 
 Runtime state and credentials are intentionally excluded. In particular, Codex configuration and authentication, Pi authentication, sessions, histories, caches, SQLite databases, Herdr sessions, and `~/.local/share/tk/tasks.db` are not managed here.
+
+The installer skips `.DS_Store`, `__pycache__` directories, and Python bytecode (`*.pyc` and `*.pyo`) generated inside the checkout. Other configuration files, including dotfiles and new files, remain installable.
 
 Keep employer-specific services, project paths, credentials, and one-off approval rules outside this repository. Configure them locally for each computer or in the relevant project. The macOS keybindings, editor preferences, and reusable tools are shared across computers.
 
@@ -63,11 +67,13 @@ The Brewfile installs the managed CLI tools and terminal applications, including
 Run the installer and Orca configuration regression tests without touching your real home directory:
 
 ```sh
-python3 -m unittest discover -s tests -v
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 ```
 
-The installer tests use temporary homes, do not pass `--tools`, and check backups, symlinks, repeated runs, dry runs, and duplicate destinations. Evaluation-record tests require PyYAML and stub all model execution; they use temporary homes and never read Codex credentials. The evaluator's built-in checks can also run without model calls:
+The installer tests use temporary homes and check backups, symlinks, repeated runs, dry runs, generated-file exclusions, and duplicate destinations. Tests of `--tools` expose only local `brew`, `uv`, and `tk` stubs; they never install dependencies. External-skill installer tests stub `npx`; they never fetch or install skills. Evaluation-record tests require PyYAML and stub all model execution; they use temporary homes and never read Codex credentials. The evaluator's built-in checks can also run without model calls:
 
 ```sh
 python3 skills-local/.codex/skills/create-validated-skill/scripts/run_eval.py --self-test
 ```
+
+The portable-checks workflow runs the tests, evaluator self-test, and `/bin/sh -n` checks on Ubuntu 24.04 and macOS 15 with Python 3.12 and PyYAML. It does not install dotfiles into the runner's home or run real Homebrew, `uv`, `tk`, or `npx` commands.

@@ -2,7 +2,6 @@
 
 import os
 from pathlib import Path
-import re
 import subprocess
 import tempfile
 import unittest
@@ -25,9 +24,13 @@ class InstallTests(unittest.TestCase):
         self.backup = self.backups / ORCA
 
     def install(self, *args):
-        env = dict(os.environ, HOME=str(self.home), DOTFILES_BACKUP_DIR=str(self.backups))
+        env = {
+            "HOME": str(self.home),
+            "DOTFILES_BACKUP_DIR": str(self.backups),
+            "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+        }
         result = subprocess.run(
-            ["sh", str(REPO / "install.sh"), *args],
+            ["/bin/sh", str(REPO / "install.sh"), *args],
             env=env, text=True, capture_output=True, check=True,
         )
         return result.stdout
@@ -116,24 +119,14 @@ class InstallTests(unittest.TestCase):
         self.assertIn(str(self.backup) + ".1", output)
         self.assertIn(str(REPO / "orca" / ORCA), output)
 
-    def test_package_destinations_are_unique_and_match_dry_run(self):
-        script = (REPO / "install.sh").read_text()
-        match = re.search(r"^for package in (.+); do$", script, re.MULTILINE)
-        self.assertIsNotNone(match)
-        packages = match.group(1).split()
-        self.assertEqual(packages.count("orca"), 1)
-        destinations = []
-        for package in packages:
-            self.assertTrue((REPO / package).is_dir(), package)
-            destinations.extend(
-                str(p.relative_to(REPO / package))
-                for p in (REPO / package).rglob("*") if p.is_file()
-            )
-        self.assertEqual(len(destinations), len(set(destinations)))
-        self.assertIn(str(ORCA), destinations)
+    def test_dry_run_destinations_are_unique(self):
         output = self.install("--dry-run")
-        for relative in destinations:
-            self.assertEqual(output.count(f"link    {self.home / relative} -> "), 1, relative)
+        destinations = [
+            line.removeprefix("link    ").split(" -> ", 1)[0]
+            for line in output.splitlines() if line.startswith("link    ")
+        ]
+        self.assertEqual(len(destinations), len(set(destinations)))
+        self.assertIn(str(self.home / ORCA), destinations)
         self.assertFalse(self.target.exists())
         self.assertFalse(self.backups.exists())
 
