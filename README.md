@@ -24,7 +24,7 @@ Install Homebrew dependencies and user-level CLI tools on a fresh machine with:
 ./install.sh --tools
 ```
 
-Restore external skills separately:
+Restore the external [tk skill](https://github.com/mixidota2/tasukura-skills) separately (requires `npx`):
 
 ```sh
 ./skills/install.sh
@@ -66,7 +66,7 @@ Run the installer and Orca configuration regression tests without touching your 
 python3 -m unittest discover -s tests -v
 ```
 
-The installer tests use temporary homes, do not pass `--tools`, and check backups, symlinks, repeated runs, dry runs, and duplicate destinations. Evaluation-record tests require PyYAML and stub all model execution; they use temporary homes and never read Codex credentials. The evaluator's built-in checks can also run without model calls:
+The installer tests use temporary homes, do not pass `--tools`, and check backups, symlinks, repeated runs, dry runs, and duplicate destinations. External-skill installer tests stub `npx`; they never fetch or install skills. Evaluation-record tests require PyYAML and stub all model execution; they use temporary homes and never read Codex credentials. The evaluator's built-in checks can also run without model calls:
 
 ```sh
 python3 skills-local/.codex/skills/create-validated-skill/scripts/run_eval.py --self-test
