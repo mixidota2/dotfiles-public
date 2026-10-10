@@ -9,7 +9,7 @@ usage() {
   cat <<'EOF'
 Usage: ./install.sh [--dry-run] [--tools]
 
-  --dry-run  Print filesystem changes without applying them.
+  --dry-run  Print filesystem changes and tool commands without applying them.
   --tools    Install Homebrew dependencies and tk as a uv tool when missing.
 EOF
 }
@@ -68,9 +68,13 @@ link_file() {
 
 link_package() {
   package=$1
-  find "$repo_dir/$package" -type f -print | while IFS= read -r source; do
-    link_file "$source"
-  done
+  # Tests and local applications can create these files inside the checkout.
+  # Keep real configuration files, including dotfiles and newly added files.
+  find "$repo_dir/$package" -type d -name __pycache__ -prune -o \
+    -type f ! -name .DS_Store ! -name '*.pyc' ! -name '*.pyo' -print |
+    while IFS= read -r source; do
+      link_file "$source"
+    done
 }
 
 install_user_tools() {
@@ -80,7 +84,8 @@ install_user_tools() {
   fi
   run brew bundle --file "$repo_dir/Brewfile"
 
-  if ! command -v uv >/dev/null 2>&1; then
+  # Brewfile provides uv. A dry run only prints that prerequisite installation.
+  if [ "$dry_run" = false ] && ! command -v uv >/dev/null 2>&1; then
     printf 'uv was not found after brew bundle.\n' >&2
     exit 1
   fi
